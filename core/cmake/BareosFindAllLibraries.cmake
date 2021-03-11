@@ -69,6 +69,7 @@ else()
       OUTPUT_FILE ${CMAKE_CURRENT_BINARY_DIR}/py2settings.cmake
     )
     include(${CMAKE_CURRENT_BINARY_DIR}/py2settings.cmake)
+    set(Python2_CCSHARED ${Python2_CC_FLAGS} -Wno-register)
   endif()
 
   if(${Python3_FOUND})
