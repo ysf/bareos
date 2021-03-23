@@ -6,9 +6,20 @@ and since Bareos version 20 this project adheres to [Semantic Versioning](https:
 ## [Unreleased]
 
 ### Added
+- contrib: add support for building and packaging [PR #768]:
+  - bareos-contrib-director-python-plugins
+  - bareos-contrib-filedaemon-python-plugins
+  - bareos-contrib-tools
+- systemtest py3plug-fd-contrib-mysql_dump [PR #768]
+- systemtest py*plug-fd-contrib-bareos_tasks_mysql [PR #768]
 ￼- ndmp: introduce workaround for isilon 9.1.0.0 'Invalid nlist.tape_offset -1' error [PR #1043]
 - packaging: installation and upgrade will check for the presence of :file:`.enable-cap_sys_rawio` in your bareos config dir and will configure the required cap_sys_rawio capabilities [PR #1057]
 
+
+### Changed
+- contrib: rename Python modules to satisfy PEP8 [PR #768]
+- contrib: adapt to Python interface of Bareos >= 20 [PR #768]
+￼
 ### Breaking Changes
 
 ### Fixed
