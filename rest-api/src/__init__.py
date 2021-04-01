@@ -18,8 +18,9 @@
 #   02110-1301, USA.
 
 """
-`python-bareos-restapi` module.
+`bareosRestapiModels` module.
 """
+#`python-bareos-restapi` module.
 
 import os.path
 
@@ -39,5 +40,5 @@ else:
 
 #from bareos.exceptions import *
 #from bareos.util.password import Password
-
-#__all__ = ["bsock", "exceptions", "util", "Password"]
+from bareosRestapiModels import *
+__all__ = ["bareosRestapiModels"]

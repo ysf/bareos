@@ -21,6 +21,7 @@
 
 import os
 import re
+import glob
 from setuptools import find_packages, setup
 
 
@@ -45,12 +46,20 @@ def get_version():
 
 setup(
     name="python-bareos-restapi",
+    #name="bareosRestapiModels",
     version=get_version(),
     license="AGPLv3",
     author="Bareos Team",
     author_email="packager@bareos.com",
+    #include_package_data=True,
+    package_dir={"": "src"},
+    #py_modules=["bareosRestapiModels"],
     packages=find_packages(where="src"),
-    package_data={"bareos": ["VERSION.txt"]},
+    scripts=["src/bareos-restapi.py"],
+    package_data={  # Optional
+        'bareosRestapiModels': ['metatags.yaml'],
+    },
+    data_files=[('etc/bareos/restapi',['etc/restapi.ini'])],
     url="https://github.com/bareos/bareos/",
     # What does your project relate to?
     keywords="bareos, REST API",
@@ -66,7 +75,7 @@ setup(
         "dataclasses",
         "fastapi",
         "pydantic",
-        "python-bareos",
+        "python-bareos>=20.0.0",
         "starlette==0.13.6",
         "python-jose",
         "uvicorn",
