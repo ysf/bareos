@@ -29,7 +29,7 @@ def get_version():
     base_dir = os.path.abspath(os.path.dirname(__file__))
 
     try:
-        with open(os.path.join(base_dir, "bareos", "VERSION.txt")) as version_file:
+        with open(os.path.join(base_dir, "bareosRestapiModels", "VERSION.txt")) as version_file:
             # read version
             # and adapt it according to
             # https://www.python.org/dev/peps/pep-0440/.
@@ -39,7 +39,7 @@ def get_version():
         # Fallback version.
         # First protocol implemented
         # has been introduced with this version.
-        __version__ = "20.0.0"
+        __version__ = "20.0.4"
 
     return __version__
 
@@ -72,7 +72,7 @@ setup(
     keywords="bareos, REST API",
     description="REST API for Bareos console access.",
     long_description=open("README.md").read(),
-    long_description_content_type="text/x-rst",
+    long_description_content_type="text/markdown",
     # Python 2.6 is used by RHEL/Centos 6.
     # When RHEL/Centos 6 is no longer supported (End of 2020),
     # Python 2.6 will no longer be supported by python-bareos.
@@ -96,7 +96,7 @@ setup(
         "Development Status :: 3 - Alpha",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
-        "Programming Language :: Python ::3",
+        "Programming Language :: Python",
         "Topic :: System :: Archiving :: Backup",
     ],
 )
