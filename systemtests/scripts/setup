@@ -13,4 +13,11 @@ ${scripts}/create_bareos_database ${DBTYPE} >/dev/null 2>&1
 ${scripts}/make_bareos_tables ${DBTYPE} >/dev/null 2>&1
 ${scripts}/grant_bareos_privileges ${DBTYPE} >/dev/null 2>&1
 
+for port in $BASEPORT $BAREOS_DIRECTOR_PORT $BAREOS_STORAGE_PORT \
+  $BAREOS_STORAGE2_PORT $BAREOS_FD_PORT $MINIO_PORT; do
+  if PID=$(lsof -ti "tcp:$port"); then
+    print_debug "Killing process listening on $port with PID $PID"
+    kill -9 "$PID"
+  fi
+done
 exit 0
