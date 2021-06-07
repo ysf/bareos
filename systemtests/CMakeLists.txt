@@ -1155,6 +1155,11 @@ else()
   list(APPEND SYSTEM_TESTS_DISABLED ndmp)
 endif()
 
+# NoTLS test requires more time on Solaris i386
+if("notls" IN_LIST SYSTEM_TESTS)
+  set_tests_properties(${SYSTEMTEST_PREFIX}notls PROPERTIES TIMEOUT 300)
+endif()
+
 # webui specific settings
 if(ENABLE_WEBUI_SELENIUM_TEST)
   foreach(TEST_NAME ${WEBUI_SELENIUM_TESTS})
