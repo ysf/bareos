@@ -641,7 +641,6 @@ else()
   list(APPEND SYSTEM_TESTS_DISABLED gfapi-fd)
 endif()
 
-
 # add tests also here that are unreliable they are excluded when running tests
 # during build in jenkins
 set(SYSTEM_TESTS_BROKEN
@@ -1140,9 +1139,14 @@ foreach(TEST_NAME ${SYSTEM_TESTS})
     )
   endif()
 
+  if(CMAKE_SYSTEM_NAME MATCHES SunOS AND CMAKE_SYSTEM_PROCESSOR MATCHES "sparc")
+    set(SYSTEM_TESTS_TIMEOUT 240)
+  else()
+    set(SYSTEM_TESTS_TIMEOUT 120)
+  endif()
   set_tests_properties(
-    ${SYSTEMTEST_PREFIX}${TEST_NAME} PROPERTIES TIMEOUT 120 COST 1.0
-                                                SKIP_RETURN_CODE 77
+    ${SYSTEMTEST_PREFIX}${TEST_NAME} PROPERTIES TIMEOUT SYSTEM_TESTS_TIMEOUT
+                                                COST 1.0 SKIP_RETURN_CODE 77
   )
   math(EXPR BASEPORT "${BASEPORT} + 10")
 
