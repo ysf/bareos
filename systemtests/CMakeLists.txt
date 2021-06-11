@@ -483,10 +483,8 @@ file(STRINGS ${CMAKE_SOURCE_DIR}/core/src/cats/cats.h DB_VERSION_STRING
 string(REGEX MATCH [0-9]+ BDB_VERSION ${DB_VERSION_STRING})
 message(STATUS "db version from cat.sh is ${BDB_VERSION}")
 
-# set variable values to be replaced by configure_file set(DEFAULT_DB_TYPE
-if (NOT DEFAULT_DB_TYPE)
-  set(DEFAULT_DB_TYPE postgresql)
-endif()
+set(DEFAULT_DB_TYPE ${default_db_backend})
+
 message(STATUS "DEFAULT_DB_TYPE is ${DEFAULT_DB_TYPE}")
 
 # set(TAPEDRIVE "TAPEDRIVE")

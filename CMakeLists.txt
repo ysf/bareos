@@ -83,6 +83,8 @@ if(BUILD_BAREOS_BINARIES)
 endif()
 
 if(RUN_SYSTEMTESTS_ON_INSTALLED_FILES)
+    include(BareosFindPrograms)
+    include(BareosSetVariableDefaults)
     add_subdirectory(systemtests)
 endif()
 
