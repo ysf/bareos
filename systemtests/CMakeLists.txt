@@ -19,7 +19,7 @@
 message("Entering ${CMAKE_CURRENT_SOURCE_DIR}")
 
 cmake_minimum_required(VERSION 3.3)
-project(bareos-systemtests)
+project(bareos-systemtests NONE)
 cmake_policy(SET CMP0057 NEW) # IF(.. IN_LIST ..)
 cmake_policy(SET CMP0053 NEW)
 cmake_policy(SET CMP0064 NEW) # IF(TEST ...)
@@ -484,7 +484,9 @@ string(REGEX MATCH [0-9]+ BDB_VERSION ${DB_VERSION_STRING})
 message(STATUS "db version from cat.sh is ${BDB_VERSION}")
 
 # set variable values to be replaced by configure_file set(DEFAULT_DB_TYPE
-# ${default_db_backend})
+if (NOT DEFAULT_DB_TYPE)
+  set(DEFAULT_DB_TYPE postgresql)
+endif()
 message(STATUS "DEFAULT_DB_TYPE is ${DEFAULT_DB_TYPE}")
 
 # set(TAPEDRIVE "TAPEDRIVE")
@@ -989,7 +991,7 @@ else()
 endif()
 
 message(STATUS "Looking for pam test requirements ...")
-bareosfindlibraryandheaders("pam" "security/pam_appl.h" "")
+#bareosfindlibraryandheaders("pam" "security/pam_appl.h" "")
 find_program(PAMTESTER pamtester)
 
 set(ENV{PAM_WRAPPER_LIBRARIES} "${PAM_WRAPPER_LIBRARIES}")

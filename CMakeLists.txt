@@ -64,7 +64,7 @@ if(docs-build-json)
   endif()
 endif()
 
-if(docs-only)
+if(docs-only OR RUN_SYSTEMTESTS_ON_INSTALLED_FILES)
   set(BUILD_BAREOS_BINARIES no)
 else()
   set(BUILD_BAREOS_BINARIES yes)
@@ -80,6 +80,10 @@ if(BUILD_BAREOS_BINARIES)
   if(NOT client-only AND NOT ${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     add_subdirectory(systemtests)
   endif()
+endif()
+
+if(RUN_SYSTEMTESTS_ON_INSTALLED_FILES)
+    add_subdirectory(systemtests)
 endif()
 
 if(docs
