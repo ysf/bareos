@@ -434,8 +434,10 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
 
     switch (status) {
       case DPL_SUCCESS:
+        Dmsg2(100, "Current chunk size: %d, buffer length: %d\n", sysmd->size, request->wbuflen);
         if (sysmd->size > request->wbuflen) {
           success = true;
+          dpl_sysmd_free(sysmd);
           goto bail_out;
         }
         break;
@@ -475,6 +477,7 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
                 dev_errno = DropletErrnoToSystemErrno(status);
                 Bmicrosleep(INFLIGT_RETRY_TIME, 0);
                 tries++;
+                dpl_sysmd_free(sysmd);
                 goto again1;
             }
             break;
@@ -508,6 +511,36 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
 
     switch (status) {
       case DPL_SUCCESS:
+        Dmsg2(100, "Chunk size after dpl_fput: %d, buffer length: %d\n", sysmd->size, request->wbuflen);
+        dpl_sysmd_free(sysmd);
+        sysmd = dpl_sysmd_dup(&sysmd_);
+        status = dpl_getattr(ctx_,               /* context */
+                             chunk_name.c_str(), /* locator */
+                             NULL,               /* metadata */
+                             sysmd);             /* sysmd */
+        switch (status) {
+          case DPL_SUCCESS:
+            Dmsg2(100, "Chunk size after dpl_getattr: %d, buffer length: %d\n", sysmd->size, request->wbuflen);
+            if (sysmd->size == request->wbuflen) {
+            // simulate a missing byte
+            //if (sysmd->size == request->wbuflen + 1) {
+              break;
+            }
+            Mmsg1(errmsg, _("Failed to flush %s, dpl_fput() succeeded, but remote chunk is too small\n"),
+                chunk_name.c_str());
+          default:
+            if (status != DPL_SUCCESS) {
+              Mmsg2(errmsg, _("Failed to flush %s, dpl_fput() succeeded, but error checking chunk size: %s\n"),
+                  chunk_name.c_str(), dpl_status_str(status));
+            }
+            dev_errno = EIO;
+            Bmicrosleep(INFLIGT_RETRY_TIME, 0);
+            tries++;
+            dpl_sysmd_free(sysmd);
+            goto again1;
+            break;
+        }
+
         success = true;
         goto bail_out;
       default:
@@ -516,11 +549,13 @@ bool DropletDevice::FlushRemoteChunk(chunk_io_request* request)
         dev_errno = DropletErrnoToSystemErrno(status);
         Bmicrosleep(INFLIGT_RETRY_TIME, 0);
         tries++;
+        dpl_sysmd_free(sysmd);
         goto again1;
     }
 
   again1:
     Dmsg1(100, "Flushing start over again (%d)\n", status);
+    //if (sysmd) { dpl_sysmd_free(sysmd); }
 
   } while (!success && tries < NUMBER_OF_RETRIES);
 
@@ -532,7 +567,8 @@ bail_out:
   // Clear that we are uploading the chunk.
   ClearInflightChunk(request);
 
-  if (sysmd) { dpl_sysmd_free(sysmd); }
+  // got a double free here after I added the dpl_symd_free(sysmd) above as needed:
+  //if (sysmd) { dpl_sysmd_free(sysmd); }
 
   return retval;
 }
@@ -596,7 +632,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
   } while (!success && tries < NUMBER_OF_RETRIES);
 
   if (tries == NUMBER_OF_RETRIES) {
-    Dmsg0(100, "dpl_getattr timed out");
+    Dmsg0(100, "dpl_getattr timed out\n");
     goto bail_out;
   }
 
@@ -650,7 +686,7 @@ bool DropletDevice::ReadRemoteChunk(chunk_io_request* request)
     }
   } while (!success && tries < NUMBER_OF_RETRIES);
 
-  if (tries == NUMBER_OF_RETRIES) { Dmsg0(100, "dpl_getattr timed out"); }
+  if (tries == NUMBER_OF_RETRIES) { Dmsg0(100, "dpl_getattr timed out\n"); }
 
   retval = success;
 
