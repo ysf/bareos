@@ -258,8 +258,9 @@ static inline PySavePacket* NativeToPySavePacket(struct save_pkt* sp)
   PySavePacket* pSavePkt = PyObject_New(PySavePacket, &PySavePacketType);
 
   if (pSavePkt) {
-    pSavePkt->fname = PyUnicode_FromString(sp->fname ? sp->fname : "");
-    pSavePkt->link = PyUnicode_FromString(sp->link ? sp->link : "");
+    pSavePkt->fname = PyUnicode_DecodeFSDefault(sp->fname ? sp->fname : "");
+    pSavePkt->link = PyUnicode_DecodeFSDefault(sp->link ? sp->link : "");
+
     if (sp->statp.st_mode) {
       pSavePkt->statp = (PyObject*)NativeToPyStatPacket(&sp->statp);
     } else {
@@ -294,17 +295,16 @@ static inline bool PySavePacketToNative(
   if (!is_options_plugin) {
     // Only copy back the arguments that are allowed to change.
     if (pSavePkt->fname) {
-      /*
-       * As this has to linger as long as the backup is running we save it in
-       * our plugin context.
-       */
+      /* As this has to linger as long as the backup is running we save it in
+         our plugin context.  */
       if (PyUnicode_Check(pSavePkt->fname)) {
         if (plugin_priv_ctx->fname) { free(plugin_priv_ctx->fname); }
+        PyObject* fname_bytes = PyUnicode_EncodeFSDefault(pSavePkt->fname);
+        const char* fileName = PyBytes_AsString(fname_bytes);
 
-        const char* fileName_AsUTF8 = PyUnicode_AsUTF8(pSavePkt->fname);
-        if (!fileName_AsUTF8) return false;
+        if (!fileName) return false;
 
-        plugin_priv_ctx->fname = strdup(fileName_AsUTF8);
+        plugin_priv_ctx->fname = strdup(fileName);
         sp->fname = plugin_priv_ctx->fname;
       }
     } else {
@@ -1824,6 +1824,16 @@ bail_out:
 }
 
 // Some helper functions.
+
+// Decode Filename using PyUnicode_DecodeFSDefault()
+static inline char* PyGetFilenameValue(PyObject* object)
+{
+  if (!object || !PyUnicode_Check(object)) { return (char*)""; }
+
+  return const_cast<char*>(PyUnicode_AsUTF8(object));
+}
+
+
 static inline char* PyGetStringValue(PyObject* object)
 {
   if (!object || !PyUnicode_Check(object)) { return (char*)""; }
@@ -1921,7 +1931,6 @@ static PyObject* PyStatPacket_repr(PyStatPacket* self)
        self->dev, self->ino, (self->mode & ~S_IFMT), self->nlink, self->uid,
        self->gid, self->rdev, self->size, self->atime, self->mtime, self->ctime,
        self->blksize, self->blocks);
-
   s = PyUnicode_FromString(buf.c_str());
 
   return s;
@@ -2008,11 +2017,13 @@ static PyObject* PySavePacket_repr(PySavePacket* self)
        "no_read=%d, portable=%d, accurate_found=%d, "
        "cmd=\"%s\", save_time=%ld, delta_seq=%ld, object_name=\"%s\", "
        "object=\"%s\", object_len=%ld, object_index=%ld)",
-       PyGetStringValue(self->fname), PyGetStringValue(self->link), self->type,
-       print_flags_bitmap(self->flags), self->no_read, self->portable,
-       self->accurate_found, self->cmd, self->save_time, self->delta_seq,
-       PyGetStringValue(self->object_name), PyGetByteArrayValue(self->object),
-       self->object_len, self->object_index);
+
+       PyGetFilenameValue(self->fname), PyGetFilenameValue(self->link),
+
+       self->type, print_flags_bitmap(self->flags), self->no_read,
+       self->portable, self->accurate_found, self->cmd, self->save_time,
+       self->delta_seq, PyGetStringValue(self->object_name),
+       PyGetByteArrayValue(self->object), self->object_len, self->object_index);
 
   s = PyUnicode_FromString(buf.c_str());
 
@@ -2044,7 +2055,12 @@ static int PySavePacket_init(PySavePacket* self, PyObject* args, PyObject* kwds)
   self->object_index = 0;
 
   if (!PyArg_ParseTupleAndKeywords(
-          args, kwds, "|OOiOpppsiiOOii", kwlist, &self->fname, &self->link,
+          args, kwds, "|O&O&iOpppsiiOOii", kwlist,
+
+          PyUnicode_FSConverter, &self->fname,
+
+          PyUnicode_FSConverter, &self->link,
+
           &self->type, &self->flags, &self->no_read, &self->portable,
           &self->accurate_found, &self->cmd, &self->save_time, &self->delta_seq,
           &self->object_name, &self->object, &self->object_len,

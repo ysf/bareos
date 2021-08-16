@@ -24,7 +24,12 @@ def load_bareos_plugin(plugindef):
     print("Hello from load_bareos_plugin")
     print(plugindef)
     print(bareosfd)
+    bareosfd.DebugMessage(100, str(dir(bareosfd)))
     bareosfd.DebugMessage(100, "Kuckuck")
     bareosfd.DebugMessage(100, 'Kückuck->C\udcc3N')
     bareosfd.JobMessage(100, "Kuckuck")
     bareosfd.JobMessage(100, 'Kückuck->C\udcc3N')
+
+    test_SavePacket = bareosfd.SavePacket(fname='Kückuck->C\udcc3N')
+
+    bareosfd.DebugMessage(100, str(test_SavePacket))
