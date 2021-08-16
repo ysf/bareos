@@ -1404,13 +1404,17 @@ static PyObject* PyBareosJobMessage(PyObject* self, PyObject* args)
 {
   int level;
   char* jobmsg = NULL;
+  PyObject* job_message_bytes = Py_None;
   PluginContext* plugin_ctx = plugin_context;
 
-  if (!PyArg_ParseTuple(args, "i|z:BareosJobMessage", &level, &jobmsg)) {
+  if (!PyArg_ParseTuple(args, "i|O&:BareosJobMessage", &level,
+                        PyUnicode_FSConverter, &job_message_bytes)) {
     return NULL;
   }
-  RETURN_RUNTIME_ERROR_IF_BFUNC_OR_BAREOS_PLUGIN_CTX_UNSET()
+  jobmsg = PyBytes_AsString(job_message_bytes);
+  Py_DECREF(job_message_bytes);
 
+  RETURN_RUNTIME_ERROR_IF_BFUNC_OR_BAREOS_PLUGIN_CTX_UNSET()
   if (jobmsg) { Jmsg(plugin_ctx, level, LOGPREFIX "%s", jobmsg); }
 
   Py_RETURN_NONE;
