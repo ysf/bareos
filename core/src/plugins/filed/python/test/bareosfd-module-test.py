@@ -25,4 +25,6 @@ def load_bareos_plugin(plugindef):
     print(plugindef)
     print(bareosfd)
     bareosfd.DebugMessage(100, "Kuckuck")
+    bareosfd.DebugMessage(100, 'Kückuck->C\udcc3N')
     bareosfd.JobMessage(100, "Kuckuck")
+    bareosfd.JobMessage(100, 'Kückuck->C\udcc3N')

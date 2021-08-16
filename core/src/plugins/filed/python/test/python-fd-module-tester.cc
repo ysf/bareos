@@ -27,13 +27,20 @@
 
 #include "Python.h"
 #include "plugins/include/python3compat.h"
-class PoolMem;
+#include "include/bc_types.h"
+#include "lib/mem_pool.h"
+//#class PoolMem;
 #define NbytesForBits(n) ((((n)-1) >> 3) + 1)
 typedef off_t boffset_t;
 
 #include "lib/plugins.h"
 #include "filed/fd_plugins.h"
 #include "../module/bareosfd.h"
+
+int debug_level = 100;
+
+const char* my_name = "python_fd_module_tester";
+
 static void PyErrorHandler()
 {
   PyObject *type, *value, *traceback;
@@ -92,6 +99,7 @@ bRC bareosSetValue(PluginContext* ctx, filedaemon::bVariable var, void* value)
 {
   return bRC_OK;
 };
+
 bRC bareosJobMsg(PluginContext* ctx,
                  const char* file,
                  int line,
@@ -100,10 +108,30 @@ bRC bareosJobMsg(PluginContext* ctx,
                  const char* fmt,
                  ...)
 {
-  printf("bareosJobMsg file:%s line:%d type:%d time: %ld, fmt:%s\n", file, line,
-         type, (int64_t)mtime, fmt);
+  va_list ap;
+  int len, maxlen;
+  PoolMem buf(PM_EMSG), more(PM_EMSG);
+  int level = 0;
+
+  if (level <= debug_level) {
+    while (1) {
+      maxlen = more.MaxSize() - 1;
+      va_start(ap, fmt);
+      len = vsnprintf(more.c_str(), maxlen, fmt, ap);
+      va_end(ap);
+
+      if (len < 0 || len >= (maxlen - 5)) {
+        more.ReallocPm(maxlen + maxlen / 2);
+        continue;
+      }
+      break;
+    }
+    printf("%s\n", more.c_str());
+  }
+
   return bRC_OK;
 };
+
 bRC bareosDebugMsg(PluginContext* ctx,
                    const char* file,
                    int line,
@@ -111,10 +139,28 @@ bRC bareosDebugMsg(PluginContext* ctx,
                    const char* fmt,
                    ...)
 {
-  printf("bareosDebugMsg file:%s line:%d level:%d fmt:%s\n", file, line, level,
-         fmt);
+  va_list ap;
+  int len, maxlen;
+  PoolMem buf(PM_EMSG), more(PM_EMSG);
+  if (level <= debug_level) {
+    while (1) {
+      maxlen = more.MaxSize() - 1;
+      va_start(ap, fmt);
+      len = vsnprintf(more.c_str(), maxlen, fmt, ap);
+      va_end(ap);
+
+      if (len < 0 || len >= (maxlen - 5)) {
+        more.ReallocPm(maxlen + maxlen / 2);
+        continue;
+      }
+      break;
+    }
+    printf("%s\n", more.c_str());
+  }
+
   return bRC_OK;
 };
+
 void* bareosMalloc(PluginContext* ctx, const char* file, int line, size_t size)
 {
   return NULL;

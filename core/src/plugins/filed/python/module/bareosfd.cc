@@ -1379,19 +1379,16 @@ static PyObject* PyBareosDebugMessage(PyObject* self, PyObject* args)
 {
   int level;
   char* dbgmsg = NULL;
-  PyObject* debug_message_pyobj = Py_None;
   PyObject* debug_message_bytes = Py_None;
   PluginContext* plugin_ctx = plugin_context;
 
-  if (!PyArg_ParseTuple(args, "i|O:BareosDebugMessage", &level,
-                        &debug_message_pyobj)) {
+  if (!PyArg_ParseTuple(args, "i|O&:BareosDebugMessage", &level,
+                        PyUnicode_FSConverter, &debug_message_bytes)) {
     return NULL;
   }
-  if (debug_message_pyobj != Py_None) {
-    debug_message_bytes = PyUnicode_EncodeFSDefault(debug_message_pyobj);
-    dbgmsg = PyBytes_AsString(debug_message_bytes);
-    Py_DECREF(debug_message_bytes);
-  }
+  dbgmsg = PyBytes_AsString(debug_message_bytes);
+  Py_DECREF(debug_message_bytes);
+
   RETURN_RUNTIME_ERROR_IF_BAREOS_PLUGIN_CTX_UNSET()
   if (dbgmsg) { Dmsg(plugin_ctx, level, LOGPREFIX "%s", dbgmsg); }
 
