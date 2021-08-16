@@ -61,7 +61,7 @@ class BareosFdPluginBaseclass(object):
         self.shortName = self.jobName.rsplit(".", 3)[0]
         self.workingdir = bareosfd.GetValue(bVarWorkingDir)
         self.startTime = int(time.time())
-        self.FNAME = "undef"
+        self.FNAME = b"undef"
         self.filetype = "undef"
         self.file = None
         bareosfd.DebugMessage(
@@ -247,7 +247,8 @@ class BareosFdPluginBaseclass(object):
         """
         bareosfd.DebugMessage(
             250,
-            "plugin_io called with function %s filename %s\n" % (IOP.func, IOP.fname),
+            #"plugin_io called with function %s filename %s\n" % (IOP.func, IOP.fname),
+            "plugin_io called with function IOP %s\n" % repr(IOP),
         )
         bareosfd.DebugMessage(250, "self.FNAME is set to %s\n" % (self.FNAME))
         if IOP.func == IO_OPEN:

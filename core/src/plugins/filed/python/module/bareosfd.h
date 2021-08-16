@@ -345,10 +345,10 @@ typedef struct {
   uint32_t uid;                 /* Userid */
   PyObject* statp;              /* Decoded stat packet */
   const char* attrEx;           /* Extended attributes if any */
-  const char* ofname;           /* Output filename */
-  const char* olname;           /* Output link name */
-  const char* where;            /* Where */
-  const char* RegexWhere;       /* Regex where */
+  PyObject* ofname;             /* Output filename */
+  PyObject* olname;             /* Output link name */
+  PyObject* where;              /* Where */
+  PyObject* RegexWhere;         /* Regex where */
   int replace;                  /* Replace flag */
   int create_status;            /* Status from createFile() */
 } PyRestorePacket;
@@ -380,13 +380,13 @@ static PyMemberDef PyRestorePacket_members[] = {
      (char*)"Stat Packet"},
     {(char*)"attrEX", T_STRING, offsetof(PyRestorePacket, attrEx), 0,
      (char*)"Extended attributes"},
-    {(char*)"ofname", T_STRING, offsetof(PyRestorePacket, ofname), 0,
+    {(char*)"ofname", T_OBJECT, offsetof(PyRestorePacket, ofname), 0,
      (char*)"Output filename"},
-    {(char*)"olname", T_STRING, offsetof(PyRestorePacket, olname), 0,
+    {(char*)"olname", T_OBJECT, offsetof(PyRestorePacket, olname), 0,
      (char*)"Output link name"},
-    {(char*)"where", T_STRING, offsetof(PyRestorePacket, where), 0,
+    {(char*)"where", T_OBJECT, offsetof(PyRestorePacket, where), 0,
      (char*)"Where"},
-    {(char*)"regexwhere", T_STRING, offsetof(PyRestorePacket, RegexWhere), 0,
+    {(char*)"regexwhere", T_OBJECT, offsetof(PyRestorePacket, RegexWhere), 0,
      (char*)"Regex where"},
     {(char*)"replace", T_INT, offsetof(PyRestorePacket, replace), 0,
      (char*)"Replace flag"},
@@ -441,7 +441,7 @@ typedef struct {
   int32_t flags;               /* Open flags */
   int32_t mode;                /* Permissions for created files */
   PyObject* buf;               /* Read/Write buffer */
-  const char* fname;           /* Open filename */
+  PyObject* fname;             /* Open filename */
   int32_t status;              /* Return status */
   int32_t io_errno;            /* Errno code */
   int32_t lerror;              /* Win32 error code */
@@ -470,7 +470,7 @@ static PyMemberDef PyIoPacket_members[]
         (char*)"Permissions for created files"},
        {(char*)"buf", T_OBJECT, offsetof(PyIoPacket, buf), 0,
         (char*)"Read/write buffer"},
-       {(char*)"fname", T_STRING, offsetof(PyIoPacket, fname), 0,
+       {(char*)"fname", T_OBJECT, offsetof(PyIoPacket, fname), 0,
         (char*)"Open filename"},
        {(char*)"status", T_INT, offsetof(PyIoPacket, status), 0,
         (char*)"Return status"},
@@ -528,8 +528,8 @@ static PyTypeObject PyIoPacketType = {
 
 // The PyAclPacket type
 typedef struct {
-  PyObject_HEAD const char* fname; /* Filename */
-  PyObject* content;               /* ACL content */
+  PyObject_HEAD PyObject* fname; /* Filename */
+  PyObject* content;             /* ACL content */
 } PyAclPacket;
 
 // Forward declarations of type specific functions.
@@ -542,7 +542,7 @@ static PyMethodDef PyAclPacket_methods[] = {
 };
 
 static PyMemberDef PyAclPacket_members[]
-    = {{(char*)"fname", T_STRING, offsetof(PyAclPacket, fname), 0,
+    = {{(char*)"fname", T_OBJECT, offsetof(PyAclPacket, fname), 0,
         (char*)"Filename"},
        {(char*)"content", T_OBJECT, offsetof(PyAclPacket, content), 0,
         (char*)"ACL content buffer"},
@@ -590,9 +590,9 @@ static PyTypeObject PyAclPacketType = {
 
 // The PyXattrPacket type
 typedef struct {
-  PyObject_HEAD const char* fname; /* Filename */
-  PyObject* name;                  /* XATTR name */
-  PyObject* value;                 /* XATTR value */
+  PyObject_HEAD PyObject* fname; /* Filename */
+  PyObject* name;                /* XATTR name */
+  PyObject* value;               /* XATTR value */
 } PyXattrPacket;
 
 // Forward declarations of type specific functions.

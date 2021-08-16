@@ -31,5 +31,7 @@ def load_bareos_plugin(plugindef):
     bareosfd.JobMessage(100, 'Kückuck->C\udcc3N')
 
     test_SavePacket = bareosfd.SavePacket(fname='Kückuck->C\udcc3N')
-
     bareosfd.DebugMessage(100, str(test_SavePacket))
+
+    test_IoPacket = bareosfd.IoPacket(fname='Kückuck->C\udcc3N')
+    bareosfd.DebugMessage(100, str(test_IoPacket))

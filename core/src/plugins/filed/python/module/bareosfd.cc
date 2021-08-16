@@ -516,7 +516,8 @@ static inline PyIoPacket* NativeToPyIoPacket(struct io_pkt* io)
     pIoPkt->count = io->count;
     pIoPkt->flags = io->flags;
     pIoPkt->mode = io->mode;
-    pIoPkt->fname = io->fname;
+    pIoPkt->fname = PyUnicode_DecodeFSDefault(io->fname ? io->fname : "");
+
     pIoPkt->whence = io->whence;
     pIoPkt->offset = io->offset;
     if (io->func == IO_WRITE && io->count > 0) {
@@ -710,10 +711,10 @@ static inline PyRestorePacket* NativeToPyRestorePacket(struct restore_pkt* rp)
     pRestorePacket->uid = rp->uid;
     pRestorePacket->statp = (PyObject*)NativeToPyStatPacket(&rp->statp);
     pRestorePacket->attrEx = rp->attrEx;
-    pRestorePacket->ofname = rp->ofname;
-    pRestorePacket->olname = rp->olname;
-    pRestorePacket->where = rp->where;
-    pRestorePacket->RegexWhere = rp->RegexWhere;
+    pRestorePacket->ofname = PyUnicode_DecodeFSDefault(rp->ofname);
+    pRestorePacket->olname = PyUnicode_DecodeFSDefault(rp->olname);
+    pRestorePacket->where = PyUnicode_DecodeFSDefault(rp->where);
+    pRestorePacket->RegexWhere = PyUnicode_DecodeFSDefault(rp->RegexWhere);
     pRestorePacket->replace = rp->replace;
     pRestorePacket->create_status = rp->create_status;
   }
@@ -869,7 +870,7 @@ static inline PyAclPacket* NativeToPyAclPacket(struct acl_pkt* ap)
   PyAclPacket* pAclPacket = PyObject_New(PyAclPacket, &PyAclPacketType);
 
   if (pAclPacket) {
-    pAclPacket->fname = ap->fname;
+    pAclPacket->fname = PyUnicode_DecodeFSDefault(ap->fname);
 
     if (ap->content_length && ap->content) {
       pAclPacket->content
@@ -996,7 +997,7 @@ static inline PyXattrPacket* NativeToPyXattrPacket(struct xattr_pkt* xp)
   PyXattrPacket* pXattrPacket = PyObject_New(PyXattrPacket, &PyXattrPacketType);
 
   if (pXattrPacket) {
-    pXattrPacket->fname = xp->fname;
+    pXattrPacket->fname = PyUnicode_DecodeFSDefault(xp->fname);
 
     if (xp->name_length && xp->name) {
       pXattrPacket->name
@@ -1147,7 +1148,7 @@ static inline PyRestoreObject* NativeToPyRestoreObject(
       = PyObject_New(PyRestoreObject, &PyRestoreObjectType);
 
   if (pRestoreObject) {
-    pRestoreObject->object_name = PyUnicode_FromString(rop->object_name);
+    pRestoreObject->object_name = PyUnicode_DecodeFSDefault(rop->object_name);
     pRestoreObject->object
         = PyByteArray_FromStringAndSize(rop->object, rop->object_len);
     pRestoreObject->plugin_name = rop->plugin_name;
@@ -1825,19 +1826,12 @@ bail_out:
 
 // Some helper functions.
 
-// Decode Filename using PyUnicode_DecodeFSDefault()
-static inline char* PyGetFilenameValue(PyObject* object)
-{
-  if (!object || !PyUnicode_Check(object)) { return (char*)""; }
-
-  return const_cast<char*>(PyUnicode_AsUTF8(object));
-}
-
-
 static inline char* PyGetStringValue(PyObject* object)
 {
-  if (!object || !PyUnicode_Check(object)) { return (char*)""; }
-
+  if (!object) { return (char*)""; }
+  if (!PyUnicode_Check(object)) {
+    return (char*)"PyGetStringValue: PyUnicode_Check failed!";
+  }
   return const_cast<char*>(PyUnicode_AsUTF8(object));
 }
 
@@ -2018,7 +2012,7 @@ static PyObject* PySavePacket_repr(PySavePacket* self)
        "cmd=\"%s\", save_time=%ld, delta_seq=%ld, object_name=\"%s\", "
        "object=\"%s\", object_len=%ld, object_index=%ld)",
 
-       PyGetFilenameValue(self->fname), PyGetFilenameValue(self->link),
+       PyGetStringValue(self->fname), PyGetStringValue(self->link),
 
        self->type, print_flags_bitmap(self->flags), self->no_read,
        self->portable, self->accurate_found, self->cmd, self->save_time,
@@ -2157,7 +2151,6 @@ static void PyRestorePacket_dealloc(PyRestorePacket* self)
 // Representation.
 static PyObject* PyIoPacket_repr(PyIoPacket* self)
 {
-  PyObject* s;
   PoolMem buf(PM_MESSAGE);
 
   Mmsg(buf,
@@ -2165,10 +2158,13 @@ static PyObject* PyIoPacket_repr(PyIoPacket* self)
        "buf=\"%s\", fname=\"%s\", status=%ld, io_errno=%ld, lerror=%ld, "
        "whence=%ld, offset=%lld, win32=%d)",
        self->func, self->count, self->flags, (self->mode & ~S_IFMT),
-       PyGetByteArrayValue(self->buf), self->fname, self->status,
-       self->io_errno, self->lerror, self->whence, self->offset, self->win32);
-  s = PyUnicode_FromString(buf.c_str());
+       PyGetByteArrayValue(self->buf), PyGetStringValue(self->fname),
+       self->status, self->io_errno, self->lerror, self->whence, self->offset,
+       self->win32);
 
+  PyObject* s = PyUnicode_DecodeFSDefault(buf.c_str());
+  /* PyObject* encoded_bytes = PyUnicode_EncodeFSDefault(s); */
+  /* Py_DECREF(s); */
   return s;
 }
 
@@ -2202,11 +2198,22 @@ static int PyIoPacket_init(PyIoPacket* self, PyObject* args, PyObject* kwds)
   self->offset = 0;
   self->win32 = false;
 
-  if (!PyArg_ParseTupleAndKeywords(
-          args, kwds, "|Hiiiosiiiilc", kwlist, &self->func, &self->count,
-          &self->flags, &self->mode, &self->buf, &self->fname, &self->status,
-          &self->io_errno, &self->lerror, &self->whence, &self->offset,
-          &self->win32)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|HiiiOO&iiiilc", kwlist,
+
+                                   &self->func,
+
+                                   &self->count, &self->flags, &self->mode,
+
+                                   &self->buf,
+
+                                   PyUnicode_FSConverter, &self->fname,
+
+                                   &self->status, &self->io_errno,
+                                   &self->lerror, &self->whence,
+
+                                   &self->offset,
+
+                                   &self->win32)) {
     return -1;
   }
 
@@ -2217,6 +2224,7 @@ static int PyIoPacket_init(PyIoPacket* self, PyObject* args, PyObject* kwds)
 static void PyIoPacket_dealloc(PyIoPacket* self)
 {
   if (self->buf) { Py_XDECREF(self->buf); }
+  if (self->fname) { Py_XDECREF(self->fname); }
   PyObject_Del(self);
 }
 
@@ -2258,7 +2266,7 @@ static void PyAclPacket_dealloc(PyAclPacket* self)
   PyObject_Del(self);
 }
 
-// Python specific handlers for PyIOPacket structure mapping.
+// Python specific handlers for PyXattrPacket structure mapping.
 
 // Representation.
 static PyObject* PyXattrPacket_repr(PyXattrPacket* self)
