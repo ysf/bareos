@@ -389,6 +389,14 @@ check_duration_lt()
    fi
 }
 
+reload_dir() {
+  if [ "$dir_pid" -ne "0" ]; then
+   kill -HUP "$dir_pid"
+ else
+   echo "Cannot kill dir_pid $dir_pid"
+ fi
+}
+
 start_dir() {
    "${BAREOS_DIRECTOR_BINARY}" -c "${BAREOS_CONFIG_DIR}" -f </dev/null &
    dir_pid=$!

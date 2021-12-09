@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+#set -o pipefail
+set -u
+
+TestName="$(basename "$(pwd)")"
+export TestName
+
+#shellcheck source=../environment.in
+. ./environment
+
+#shellcheck source=../scripts/functions
+. "${rscripts}"/functions
+set -x
+$CMAKE_BINARY_DIR/core/src/filed/bareos-fd -?  3>&2 2>&1 1>&3-  | grep Usage
