@@ -84,17 +84,15 @@ endif
 ifeq ($(DEB_HOST_ARCH_OS),hurd)
 CONFIGURE_COMMON       += -Dscsi-crypto=no -Dndmp=no
 endif
-CONFIGURE_CLIENT_ONLY = $(CONFIGURE_COMMON) -Dclient-only=yes
-CONFIGURE_FULL        = $(CONFIGURE_COMMON) -Dpython=yes -Dtraymonitor=yes -DSHARE_INSTALL_PREFIX:PATH=/usr/share -Dwebuiconfdir=/etc/bareos-webui
 
 override_dh_auto_configure:
-	@if [ "`lsb_release --short  --id`" = "Ubuntu" ] && [ "`lsb_release --short  --release`" = "8.04" ]; then \
-		echo "configure common configuration"; \
-		dh_auto_configure -- $(CONFIGURE_COMMON); \
-	else \
-		echo "configure full configuration"; \
-		dh_auto_configure -- $(CONFIGURE_FULL); \
-	fi
+ifeq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
+	echo "configuring universal client"
+	dh_auto_configure -- $(CONFIGURE_COMMON) -DBUILD_UNIVERSAL_CLIENT=yes
+else
+	echo "configure full configuration"
+	dh_auto_configure -- $(CONFIGURE_COMMON) -Dpython=yes -Dtraymonitor=yes -DSHARE_INSTALL_PREFIX:PATH=/usr/share -Dwebuiconfdir=/etc/bareos-webui
+endif
 
 override_dh_fixperms:
 	# all files in /etc/bareos
@@ -104,17 +102,30 @@ override_dh_fixperms:
 		--exclude var/log/bareos/
 
 override_dh_strip:
+ifeq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
+	dh_strip --dbg-package=bareos-universal-client-dbg
+else
 	dh_strip --dbg-package=bareos-dbg
+endif
 
 override_dh_install:
-	chrpath -d \
-		$(CURDIR)/debian/tmp/usr/lib/bareos/backends/libbareoscats-postgresql*
+ifneq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
+	chrpath -d $(CURDIR)/debian/tmp/usr/lib/bareos/backends/libbareoscats-postgresql*
+else
+	for f in bareos-fd.init postinst postrm preinst prerm service; do \
+	cp $(CURDIR)/debian/bareos-filedaemon.$$f $(CURDIR)/debian/bareos-universal-client.$$f; \
+	done
+endif
 	dh_install
 
 override_dh_installinit:
+ifeq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
+	dh_installinit --package=bareos-universal-client --name=bareos-fd
+else
 	dh_installinit --package=bareos-director   --name=bareos-dir --no-start
 	dh_installinit --package=bareos-storage    --name=bareos-sd  --no-start
 	dh_installinit --package=bareos-filedaemon --name=bareos-fd
+endif
 
 override_dh_makeshlibs:
 	dh_makeshlibs -n
