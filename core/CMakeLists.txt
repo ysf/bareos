@@ -357,6 +357,7 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror -Wall")
 
 include(BareosSetVariableDefaults)
+option(ENABLE_BCONSOLE "Build bconsole binary" ON)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "AIX")
   set(ENABLE_NLS 0)
