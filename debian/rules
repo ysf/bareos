@@ -48,7 +48,6 @@ define CONFIGURE_COMMON
   -Dsubsysdir=/var/lock \
   -Dreadline=yes \
   -Dbatch-insert=yes \
-  -Ddynamic-debian-package-list=yes\
   -Ddynamic-cats-backends=yes \
   -Ddynamic-storage-backends=yes \
   -Dscsi-crypto=yes \
@@ -93,6 +92,7 @@ else
 	echo "configure full configuration"
 	dh_auto_configure -- $(CONFIGURE_COMMON) -Dpython=yes -Dtraymonitor=yes -DSHARE_INSTALL_PREFIX:PATH=/usr/share -Dwebuiconfdir=/etc/bareos-webui
 endif
+	cmake --build cmake-build/ -- generate-debian-control
 
 override_dh_fixperms:
 	# all files in /etc/bareos
@@ -137,7 +137,7 @@ override_dh_auto_test:
 # see https://www.debian.org/doc/debian-policy/ch-source.html#s-debianrules-options
 # No tabs allowed before ifeq.
 ifneq (nocheck,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
-	cd obj-$(DEB_BUILD_GNU_TYPE) && ls Testing/*/Test.xml || REGRESS_DEBUG=1 ctest -V -S CTestScript.cmake || echo "ctest result:$?"
+	cd cmake-build && ls Testing/*/Test.xml || REGRESS_DEBUG=1 ctest -V -S CTestScript.cmake || echo "ctest result:$?"
 else
 	@echo "ctest: skipped"
 endif
@@ -150,7 +150,7 @@ override_dh_shlibdeps:
 %:
 	PARALLEL="--parallel"; \
 	if dh --list | grep -q systemd; then WITH="--with"; SYSTEMD="systemd"; fi; \
-	dh $@ $$PARALLEL $$WITH $$SYSTEMD
+	dh $@ $$PARALLEL $$WITH $$SYSTEMD --builddirectory=cmake-build
 
 gen-debian-copyright:
 	(cd debian; make copyright)
