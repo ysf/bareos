@@ -17,9 +17,6 @@ DH_VERBOSE = 1
 # This has to be exported to make some magic below work.
 DH_OPTIONS = -v
 
-
-
-
 DAEMON_USER = bareos
 DAEMON_GROUP = bareos
 DIRECTOR_DAEMON_USER = $(DAEMON_USER)
@@ -46,6 +43,8 @@ define CONFIGURE_COMMON
   -Dbsrdir=/var/lib/bareos \
   -Dlogdir=/var/log/bareos \
   -Dsubsysdir=/var/lock \
+  -DSHARE_INSTALL_PREFIX:PATH=/usr/share \
+  -Dwebuiconfdir=/etc/bareos-webui \
   -Dreadline=yes \
   -Dbatch-insert=yes \
   -Ddynamic-cats-backends=yes \
@@ -90,7 +89,7 @@ ifeq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS
 	dh_auto_configure -- $(CONFIGURE_COMMON) -DBUILD_UNIVERSAL_CLIENT=yes
 else
 	echo "configure full configuration"
-	dh_auto_configure -- $(CONFIGURE_COMMON) -Dpython=yes -Dtraymonitor=yes -DSHARE_INSTALL_PREFIX:PATH=/usr/share -Dwebuiconfdir=/etc/bareos-webui
+	dh_auto_configure -- $(CONFIGURE_COMMON) -Dpython=yes -Dtraymonitor=yes
 endif
 	cmake --build cmake-build/ -- generate-debian-control
 
@@ -109,22 +108,14 @@ else
 endif
 
 override_dh_install:
-ifneq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
-	chrpath -d $(CURDIR)/debian/tmp/usr/lib/bareos/backends/libbareoscats-postgresql*
-else
-	for f in bareos-fd.init postinst postrm preinst prerm service; do \
-	cp $(CURDIR)/debian/bareos-filedaemon.$$f $(CURDIR)/debian/bareos-universal-client.$$f; \
-	done
-endif
+	chrpath -d $(CURDIR)/debian/tmp/usr/lib/bareos/backends/libbareoscats-postgresql* || true
 	dh_install
 
 override_dh_installinit:
 ifeq (build-universal-client,$(filter build-universal-client,$(DEB_BUILD_OPTIONS)))
-	dh_installinit --package=bareos-universal-client --name=bareos-fd
+	dh_installsystemd --name bareos-filedaemon
 else
-	dh_installinit --package=bareos-director   --name=bareos-dir --no-start
-	dh_installinit --package=bareos-storage    --name=bareos-sd  --no-start
-	dh_installinit --package=bareos-filedaemon --name=bareos-fd
+	dh_installsystemd
 endif
 
 override_dh_makeshlibs:
@@ -148,9 +139,7 @@ override_dh_shlibdeps:
 
 
 %:
-	PARALLEL="--parallel"; \
-	if dh --list | grep -q systemd; then WITH="--with"; SYSTEMD="systemd"; fi; \
-	dh $@ $$PARALLEL $$WITH $$SYSTEMD --builddirectory=cmake-build
+	dh $@ --builddirectory=cmake-build
 
 gen-debian-copyright:
 	(cd debian; make copyright)
