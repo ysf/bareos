@@ -7,7 +7,6 @@
 @configtemplatedir@/bareos-fd.d/director/bareos-dir.conf
 @configtemplatedir@/bareos-fd.d/director/bareos-mon.conf
 @configtemplatedir@/bareos-fd.d/messages/Standard.conf
-@configtemplatedir@/tray-monitor.d/client/FileDaemon-local*.conf
 @libdir@/libbareos.so*
 @libdir@/libbareosfastlz.so*
 @libdir@/libbareosfind.so*
