@@ -1240,10 +1240,10 @@ int PluginCreateFile(JobControlRecord* jcr,
   if (rp.attrEx) { Dmsg1(debuglevel, "attrEx=\"%s\"\n", rp.attrEx); }
 
   if (!b_ctx->restoreFileStarted || b_ctx->createFileCalled) {
-    Jmsg2(jcr, M_FATAL, 0, "Unbalanced call to createFile=%d %d\n",
+    Jmsg2(jcr, M_WARNING, 0, "Unbalanced call to createFile=%d %d\n",
           b_ctx->createFileCalled, b_ctx->restoreFileStarted);
     b_ctx->createFileCalled = false;
-    return CF_ERROR;
+    // return CF_ERROR;
   }
 
   retval = PlugFunc(plugin)->createFile(ctx, &rp);
