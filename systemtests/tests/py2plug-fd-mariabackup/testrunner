@@ -27,6 +27,7 @@ JobName=backup-bareos-fd
 "${rscripts}"/cleanup
 "${rscripts}"/setup
 
+
 shutdown_mysql_server(){
 [ -f "mysql/mysqld.pid" ] && kill "$(cat mysql/mysqld.pid)" || :
 [ -f "mysql/data/${HOSTNAME}.pid" ] && kill "$(cat mysql/data/${HOSTNAME}.pid)" || :
@@ -76,6 +77,10 @@ start_test
 
 startup_mysql_server
 
+setup_data
+
+echo "Content of new incremental file" > "${BackupDirectory}"/incremental-file.txt
+
 echo "create database ${mariabackup_test_db}" | $MYQL_CLIENT
 echo "CREATE TABLE test ( id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, data VARCHAR(100), created TIMESTAMP DEFAULT NOW())  " | $MYQL_CLIENT "${mariabackup_test_db}"
 echo "insert into test (data) VALUES ('test entry 1') " | $MYQL_CLIENT "${mariabackup_test_db}"
@@ -85,19 +90,25 @@ cat <<END_OF_DATA >"$tmp/bconcmds"
 run job=$JobName yes
 wait JobName=$JobName
 status dir
+END_OF_DATA
+run_bareos "$@"
 
+
+cat <<END_OF_DATA_INC >"$tmp/bconcmds"
 run job=$JobName level=Incremental yes
 wait JobName=$JobName
 status dir
+END_OF_DATA_INC
+echo "Content of new incremental file" > "${BackupDirectory}"/incremental-file.txt
+run_bconsole "$@"
 
-
-END_OF_DATA
 
 # insert data and run incremental
 echo "insert into test (data) VALUES ('test entry 2') " | $MYQL_CLIENT "${mariabackup_test_db}"
+echo "Content of new incremental file" > "${BackupDirectory}"/incremental-file.txt
+run_bconsole "$@"
 
-run_bareos "$@"
-
+echo "Content of new incremental file" > "${BackupDirectory}"/incremental-file.txt
 cat <<END_OF_DATA2 >"$tmp/bconcmds"
 # run incremental again without any new data
 run job=$JobName yes
@@ -107,15 +118,14 @@ wait
 messages
 quit
 END_OF_DATA2
-run_bareos "$@"
+run_bconsole "$@"
 
 cat <<END_OF_DATA3 >"$tmp/bconcmds"
 restore client=bareos-fd fileset=MariaBackupTest yes restorejob=RestoreFile select all done
 @$out $tmp/log2.out
 wait
 END_OF_DATA3
-
-run_bareos "$@"
+run_bconsole "$@"
 
 shutdown_mysql_server
 
