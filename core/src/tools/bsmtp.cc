@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 #if defined(HAVE_WIN32)
   SOCKET s;
 #else
-  int s, r;
+  int s{}, r{};
   struct passwd* pwd;
 #endif
   char *cp, *p;
