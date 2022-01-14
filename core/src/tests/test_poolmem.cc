@@ -76,6 +76,7 @@ TEST(poolmem, alloc)
   EXPECT_NE(pm6, pm5);
   EXPECT_EQ(SizeofPoolMemory(pm6), 128);
 
+  FreePoolMemory(pm0);
   FreePoolMemory(pm1);
   FreePoolMemory(pm2);
   FreePoolMemory(pm3);
