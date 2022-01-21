@@ -94,7 +94,12 @@ void FreeUaContext(UaContext* ua)
   if (ua->cmd) { FreePoolMemory(ua->cmd); }
   if (ua->args) { FreePoolMemory(ua->args); }
   if (ua->errmsg) { FreePoolMemory(ua->errmsg); }
-  if (ua->prompt) { free(ua->prompt); }
+  if (ua->prompt) {
+    for (int i = 0; i < ua->num_prompts; ++i) {
+      if (ua->prompt[i]) { free(ua->prompt[i]); }
+    }
+    free(ua->prompt);
+  }
   if (ua->send) { delete ua->send; }
   if (ua->UA_sock) {
     ua->UA_sock->close();
