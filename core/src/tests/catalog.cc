@@ -133,6 +133,7 @@ void CatalogTest::TearDown()
     delete my_config;
     my_config = nullptr;
   }
+  TermMsg();
 }
 
 TEST_F(CatalogTest, database)

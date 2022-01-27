@@ -201,7 +201,6 @@ int main(int argc, char* const* argv)
   }
 
   OSDependentInit();
-  InitMsg(NULL, NULL);
 
   if (dump_cache) {
     // Load any keys currently in the cache.

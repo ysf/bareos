@@ -82,7 +82,11 @@ void RunOnIncomingConnectIntervalTest::SetUp()
   my_config->ParseConfig();
 }
 
-void RunOnIncomingConnectIntervalTest::TearDown() { delete my_config; }
+void RunOnIncomingConnectIntervalTest::TearDown()
+{
+  TermMsg();
+  delete my_config;
+}
 
 static bool find(std::vector<JobResource*> jobs, std::string jobname)
 {

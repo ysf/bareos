@@ -152,4 +152,5 @@ TEST(messages_resource, send_message_to_all_configured_destinations)
   SetDbLogInsertCallback(DbLogInsertCallback_);
 
   DispatchMessage(&jcr, M_ERROR, 0, "\n!!!This is a test error message!!!\n");
+  TermMsg();
 }

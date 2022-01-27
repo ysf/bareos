@@ -35,7 +35,6 @@ namespace console {
 TEST(ConfigParser, test_console_config)
 {
   OSDependentInit();
-  InitMsg(NULL, NULL); /* initialize message handler */
 
   std::string path_to_config_file = std::string(
       RELATIVE_PROJECT_SOURCE_DIR "/configs/bareos-configparser-tests");
@@ -46,8 +45,6 @@ TEST(ConfigParser, test_console_config)
   my_config->DumpResources(PrintMessage, NULL);
 
   delete my_config;
-
-  TermMsg(); /* Terminate message handler */
 }
 
 }  // namespace console

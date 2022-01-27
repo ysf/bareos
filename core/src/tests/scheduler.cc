@@ -88,8 +88,6 @@ static void StopScheduler(std::chrono::milliseconds timeout)
 
 TEST_F(SchedulerTest, terminate)
 {
-  InitMsg(NULL, NULL); /* initialize message handler */
-
   std::string path_to_config_file
       = std::string(RELATIVE_PROJECT_SOURCE_DIR "/configs/scheduler-hourly");
 
@@ -180,8 +178,6 @@ static int CalculateAverage()
 
 TEST_F(SchedulerTest, hourly)
 {
-  InitMsg(NULL, NULL);
-
   if (debug) { std::cout << "Start test" << std::endl; }
 
   std::string path_to_config_file{
@@ -240,8 +236,6 @@ TEST_F(SchedulerTest, hourly)
 static void TestWithConfig(std::string path_to_config_file,
                            std::vector<uint8_t> wdays)
 {
-  InitMsg(NULL, NULL);
-
   if (debug) { std::cout << "Start test" << std::endl; }
 
   my_config = InitDirConfig(path_to_config_file.c_str(), M_ERROR_TERM);
@@ -277,6 +271,7 @@ static void TestWithConfig(std::string path_to_config_file,
   }
 
   if (debug) { std::cout << "End" << std::endl; }
+
   delete my_config;
 }
 
@@ -315,8 +310,6 @@ TEST_F(SchedulerTest, on_time_noday_noclient)
 
 TEST_F(SchedulerTest, add_job_with_no_run_resource_to_queue)
 {
-  InitMsg(NULL, NULL);
-
   if (debug) { std::cout << "Start test" << std::endl; }
 
   std::string path_to_config_file{std::string(
@@ -343,6 +336,5 @@ TEST_F(SchedulerTest, add_job_with_no_run_resource_to_queue)
 
   scheduler_thread.join();
   ASSERT_EQ(counter_of_number_of_jobs_run, 1);
-
   delete my_config;
 }

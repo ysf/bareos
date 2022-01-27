@@ -51,6 +51,8 @@ static void InitGlobals()
   InitMsg(NULL, NULL);
 }
 
+static void cleanup() { TermMsg(); }
+
 typedef std::unique_ptr<ConfigurationParser> PConfigParser;
 
 static PConfigParser DirectorPrepareResources(const std::string& path_to_config)
@@ -179,6 +181,7 @@ static bool try_binding_director_port(std::string path_to_config,
   directordaemon::StopSocketServer();
   StopWatchdog();
 
+  cleanup();
   return result;
 }
 
@@ -208,12 +211,13 @@ static void check_addresses_list(std::string path_to_config,
   std::sort(director_addresses.begin(), director_addresses.end());
   std::sort(expected_addresses.begin(), expected_addresses.end());
   EXPECT_EQ(director_addresses, expected_addresses);
+
+  cleanup();
 }
 
 
 TEST(addresses_and_ports_setup, default_config_values)
 {
-  InitGlobals();
   std::string path_to_config
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/default-dir-values/");
@@ -227,7 +231,6 @@ TEST(addresses_and_ports_setup, default_config_values)
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_port_set)
 {
-  InitGlobals();
   std::string path_to_config
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/old-style/dir-port-set/");
@@ -242,7 +245,6 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_port_set)
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4address-set/");
@@ -254,7 +256,6 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_set)
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v6address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v6address-set/");
@@ -273,7 +274,6 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v6address_set)
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4port_and_address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4port-and-address-set/");
@@ -287,7 +287,6 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4port_and_address_set)
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_and_port_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4address-and-port-set/");
@@ -299,7 +298,6 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_and_port_set)
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_address_set)
 {
-  InitGlobals();
   std::string path_to_config
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/new-style/dir-v6-address/");
@@ -311,7 +309,6 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_address_set)
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_and_v4_address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-v6-and-v4-addresses/");
@@ -324,7 +321,6 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_and_v4_address_set)
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v4_address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-ip-v4-address/");
@@ -336,7 +332,6 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v4_address_set)
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v6_address_set)
 {
-  InitGlobals();
   std::string path_to_config = std::string(
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-ip-v6-address/");

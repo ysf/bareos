@@ -92,7 +92,6 @@ void InitForTest()
 
   working_directory = "/tmp";
   MyNameIs(0, NULL, "bsock_test");
-  InitMsg(NULL, NULL);
 }
 
 static void clone_a_server_socket(BareosSocket* bs)

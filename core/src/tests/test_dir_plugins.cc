@@ -57,8 +57,6 @@ TEST(dir, dir_plugins)
   JobControlRecord* jcr1 = &mjcr1;
   JobControlRecord* jcr2 = &mjcr2;
 
-  InitMsg(NULL, NULL);
-
   OSDependentInit();
   (void)!getcwd(plugin_dir, sizeof(plugin_dir) - 1);
 
@@ -80,8 +78,6 @@ TEST(dir, dir_plugins)
   FreePlugins(jcr2);
 
   UnloadDirPlugins();
-
-  TermMsg();
 }
 
 } /* namespace directordaemon */

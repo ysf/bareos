@@ -72,7 +72,6 @@ class ReservationTest : public ::testing::Test {
 void ReservationTest::SetUp()
 {
   OSDependentInit();
-  InitMsg(NULL, NULL);
 
   /* configfile is a global char* from stored_globals.h */
   configfile = strdup(RELATIVE_PROJECT_SOURCE_DIR "/configs/sd_reservation/");
@@ -108,7 +107,6 @@ void ReservationTest::TearDown()
   if (configfile) { free(configfile); }
   if (my_config) { delete my_config; }
 
-  TermMsg();
   TermReservationsLock();
 }
 

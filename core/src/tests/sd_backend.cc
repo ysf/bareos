@@ -67,7 +67,6 @@ class sd : public ::testing::Test {
 void sd::SetUp()
 {
   OSDependentInit();
-  InitMsg(NULL, NULL);
 
   debug_level = 900;
 
@@ -103,7 +102,6 @@ void sd::TearDown()
   if (configfile) { free(configfile); }
   if (my_config) { delete my_config; }
 
-  TermMsg();
   TermReservationsLock();
 }
 
