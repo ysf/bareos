@@ -40,6 +40,7 @@ namespace directordaemon {
 bool DoReloadConfig() { return false; }
 }  // namespace directordaemon
 
+
 static void InitGlobals()
 {
   OSDependentInit();
@@ -48,10 +49,7 @@ static void InitGlobals()
 #endif
   directordaemon::my_config = nullptr;
   directordaemon::me = nullptr;
-  InitMsg(NULL, NULL);
 }
-
-static void cleanup() { TermMsg(); }
 
 typedef std::unique_ptr<ConfigurationParser> PConfigParser;
 
@@ -159,17 +157,11 @@ static bool test_sockets(int family, int port)
   return result;
 }
 
-static bool try_binding_director_port(std::string path_to_config,
-                                      int family,
-                                      int port)
+static bool try_binding_director_port(int family, int port)
 {
   debug_level = 10;  // set debug level high enough so we can see error messages
-  InitGlobals();
 
   bool result = false;
-
-  PConfigParser director_config(DirectorPrepareResources(path_to_config));
-  if (!director_config) { return false; }
 
   bool start_socket_server_ok
       = directordaemon::StartSocketServer(directordaemon::me->DIRaddrs);
@@ -181,12 +173,10 @@ static bool try_binding_director_port(std::string path_to_config,
   directordaemon::StopSocketServer();
   StopWatchdog();
 
-  cleanup();
   return result;
 }
 
-static void check_addresses_list(std::string path_to_config,
-                                 std::vector<std::string> expected_addresses)
+static void check_addresses_list(std::vector<std::string> expected_addresses)
 {
   char buff[1024];
   IPADDR* addr;
@@ -194,10 +184,6 @@ static void check_addresses_list(std::string path_to_config,
   std::vector<std::string> director_addresses;
 
   debug_level = 10;  // set debug level high enough so we can see error messages
-  InitGlobals();
-
-  PConfigParser director_config(DirectorPrepareResources(path_to_config));
-  EXPECT_TRUE(director_config);
 
   foreach_dlist (addr, directordaemon::me->DIRaddrs) {
     addr->build_address_str(buff, sizeof(buff), true);
@@ -211,10 +197,12 @@ static void check_addresses_list(std::string path_to_config,
   std::sort(director_addresses.begin(), director_addresses.end());
   std::sort(expected_addresses.begin(), expected_addresses.end());
   EXPECT_EQ(director_addresses, expected_addresses);
-
-  cleanup();
 }
 
+class addresses_and_ports_setup : public ::testing::Test {
+ protected:
+  void SetUp() override { InitGlobals(); }
+};
 
 TEST(addresses_and_ports_setup, default_config_values)
 {
@@ -222,11 +210,13 @@ TEST(addresses_and_ports_setup, default_config_values)
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/default-dir-values/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv6;::;9101]",
                                               "host[ipv4;0.0.0.0;9101]"};
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 
-  EXPECT_FALSE(try_binding_director_port(path_to_config, 0, 9101));
+  EXPECT_FALSE(try_binding_director_port(0, 9101));
 }
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_port_set)
@@ -235,12 +225,14 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_port_set)
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/old-style/dir-port-set/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv4;0.0.0.0;29998]",
                                               "host[ipv6;::;29998]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 
-  EXPECT_FALSE(try_binding_director_port(path_to_config, 0, 29998));
+  EXPECT_FALSE(try_binding_director_port(0, 29998));
 }
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_set)
@@ -249,9 +241,11 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4address-set/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv4;127.0.0.1;9101]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v6address_set)
@@ -260,9 +254,11 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v6address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v6address-set/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv6;::1;9101]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 
@@ -278,11 +274,13 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4port_and_address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4port-and-address-set/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv4;127.0.0.1;29997]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 
-  EXPECT_FALSE(try_binding_director_port(path_to_config, AF_INET, 29997));
+  EXPECT_FALSE(try_binding_director_port(AF_INET, 29997));
 }
 
 TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_and_port_set)
@@ -291,9 +289,11 @@ TEST(addresses_and_ports_setup, OLD_STYLE_dir_v4address_and_port_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/old-style/dir-v4address-and-port-set/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv4;127.0.0.1;29996]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_address_set)
@@ -302,9 +302,11 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_address_set)
       = std::string(RELATIVE_PROJECT_SOURCE_DIR
                     "/configs/addresses-and-ports/new-style/dir-v6-address/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv6;::;29995]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_and_v4_address_set)
@@ -313,10 +315,13 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_v6_and_v4_address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-v6-and-v4-addresses/");
 
+
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv6;::;29994]",
                                               "host[ipv4;127.0.0.1;29994]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v4_address_set)
@@ -325,9 +330,11 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v4_address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-ip-v4-address/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv4;0.0.0.0;29992]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
 
 TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v6_address_set)
@@ -336,7 +343,9 @@ TEST(addresses_and_ports_setup, NEW_STYLE_dir_ip_v6_address_set)
       RELATIVE_PROJECT_SOURCE_DIR
       "/configs/addresses-and-ports/new-style/dir-ip-v6-address/");
 
+  PConfigParser director_config = DirectorPrepareResources(path_to_config);
+
   std::vector<std::string> expected_addresses{"host[ipv6;::;29993]"};
 
-  check_addresses_list(path_to_config, expected_addresses);
+  check_addresses_list(expected_addresses);
 }
