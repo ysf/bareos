@@ -1,6 +1,6 @@
 #   BAREOS® - Backup Archiving REcovery Open Sourced
 #
-#   Copyright (C) 2021-2021 Bareos GmbH & Co. KG
+#   Copyright (C) 2021-2022 Bareos GmbH & Co. KG
 #
 #   This program is Free Software; you can redistribute it and/or
 #   modify it under the terms of version three of the GNU Affero General Public
@@ -27,6 +27,7 @@ macro(create_systemtests_directory)
 
   configurefilestosystemtest("systemtests" "scripts" "functions" @ONLY "")
   configurefilestosystemtest("systemtests" "scripts" "cleanup" @ONLY "")
+  configurefilestosystemtest("systemtests" "scripts" "mysql.sh" @ONLY "")
   configurefilestosystemtest(
     "systemtests" "scripts" "run_python_unittests.sh" @ONLY ""
   )
