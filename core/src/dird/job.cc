@@ -143,10 +143,10 @@ bool SetupJob(JobControlRecord* jcr, bool suppress_output)
   jcr->lock();
 
   // See if we should suppress all output.
-  if (!suppress_output) {
-    InitMsg(jcr, jcr->impl->res.messages, job_code_callback_director);
-  } else {
+  if (suppress_output) {
     jcr->suppress_output = true;
+  } else {
+    InitMsg(jcr, jcr->impl->res.messages, job_code_callback_director);
   }
 
   // Initialize termination condition variable

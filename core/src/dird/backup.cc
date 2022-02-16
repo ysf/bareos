@@ -405,11 +405,9 @@ bool DoNativeBackup(JobControlRecord* jcr)
     return false;
   }
 
-  /*
-   * Open a message channel connection with the Storage
+  /* Open a message channel connection with the Storage
    * daemon. This is to let him know that our client
-   * will be contacting him for a backup  session.
-   */
+   * will be contacting him for a backup  session. */
   Dmsg0(110, "Open connection with storage daemon\n");
   jcr->setJobStatus(JS_WaitSD);
 
@@ -422,25 +420,19 @@ bool DoNativeBackup(JobControlRecord* jcr)
     return false;
   }
 
-  /*
-   * When the client is not in passive mode we can put the SD in
-   * listen mode for the FD connection.
-   */
+  /* When the client is not in passive mode we can put the SD in
+   * listen mode for the FD connection. */
   jcr->passive_client = jcr->impl->res.client->passive;
   if (!jcr->passive_client) {
-    /*
-     * Start the job prior to starting the message thread below
+    /* Start the job prior to starting the message thread below
      * to avoid two threads from using the BareosSocket structure at
-     * the same time.
-     */
+     * the same time.  */
     if (!sd->fsend("run")) { return false; }
 
-    /*
-     * Now start a Storage daemon message thread.  Note,
+    /* Now start a Storage daemon message thread.  Note,
      * this thread is used to provide the catalog services
      * for the backup job, including inserting the attributes
-     * into the catalog.  See CatalogUpdate() in catreq.c
-     */
+     * into the catalog.  See CatalogUpdate() in catreq.c */
     if (!StartStorageDaemonMessageThread(jcr)) { return false; }
 
     Dmsg0(150, "Storage daemon connection OK\n");
@@ -535,20 +527,15 @@ bool DoNativeBackup(JobControlRecord* jcr)
     if (!response(jcr, sd, OKpassiveclient, "Passive client", DISPLAY_ERROR)) {
       goto bail_out;
     }
-
-    /*
-     * Start the job prior to starting the message thread below
+    /* Start the job prior to starting the message thread below
      * to avoid two threads from using the BareosSocket structure at
-     * the same time.
-     */
+     * the same time. */
     if (!jcr->store_bsock->fsend("run")) { return false; }
 
-    /*
-     * Now start a Storage daemon message thread.  Note,
+    /* Now start a Storage daemon message thread.  Note,
      * this thread is used to provide the catalog services
      * for the backup job, including inserting the attributes
-     * into the catalog.  See CatalogUpdate() in catreq.c
-     */
+     * into the catalog.  See CatalogUpdate() in catreq.c */
     if (!StartStorageDaemonMessageThread(jcr)) { return false; }
 
     Dmsg0(150, "Storage daemon connection OK\n");
@@ -559,26 +546,22 @@ bool DoNativeBackup(JobControlRecord* jcr)
 
   if (!SendRunscriptsCommands(jcr)) { goto bail_out; }
 
-  /*
-   * We re-update the job start record so that the start
+  /* We re-update the job start record so that the start
    * time is set after the run before job.  This avoids
    * that any files created by the run before job will
    * be saved twice.  They will be backed up in the current
    * job, but not in the next one unless they are changed.
    * Without this, they will be backed up in this job and
    * in the next job run because in that case, their date
-   * is after the start of this run.
-   */
+   * is after the start of this run. */
   jcr->start_time = time(NULL);
   jcr->impl->jr.StartTime = jcr->start_time;
   if (!jcr->db->UpdateJobStartRecord(jcr, &jcr->impl->jr)) {
     Jmsg(jcr, M_FATAL, 0, "%s", jcr->db->strerror());
   }
 
-  /*
-   * If backup is in accurate mode, we send the list of
-   * all files to FD.
-   */
+  /* If backup is in accurate mode, we send the list of
+   * all files to FD. */
   if (!SendAccurateCurrentFiles(jcr)) { goto bail_out; /* error */ }
 
   fd->fsend(backupcmd, jcr->JobFiles);
@@ -593,10 +576,8 @@ bool DoNativeBackup(JobControlRecord* jcr)
     Jmsg(jcr, M_FATAL, 0, "%s", jcr->db->strerror());
   }
 
-  /*
-   * Check softquotas after job did run.
-   * If quota is exceeded now, set the GraceTime.
-   */
+  /* Check softquotas after job did run.
+   * If quota is exceeded now, set the GraceTime.  */
   CheckSoftquotas(jcr);
 
   if (status == JS_Terminated) {
@@ -745,7 +726,7 @@ void NativeBackupCleanup(JobControlRecord* jcr, int TermCode)
     jcr->setJobStatus(JS_ErrorTerminated);
   }
 
-  bstrncpy(cr.Name, jcr->impl->res.client->resource_name_, sizeof(cr.Name));
+  bstrncpy(cr.Name, jcr->client_name, sizeof(cr.Name));
   if (!jcr->db->GetClientRecord(jcr, &cr)) {
     Jmsg(jcr, M_WARNING, 0,
          _("Error getting Client record for Job report: ERR=%s\n"),
