@@ -54,7 +54,7 @@ TEST(available_resources_equals_config_resources, check_contents)
   std::set<uint32_t> set_of_show_cmd_resources;
 
   for (int i = 0; show_cmd_available_resources[i].res_name; i++) {
-    if (show_cmd_available_resources[i].type > 0) {
+    if (show_cmd_available_resources[i].type >= 0) {
       set_of_show_cmd_resources.insert(show_cmd_available_resources[i].type);
     }
   }

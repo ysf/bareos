@@ -202,14 +202,11 @@ class ConfigurationParser {
   PRINT_RES_HANDLER*
       print_res_; /* Print resource handler for non default types if non-null */
 
-  int32_t err_type_; /* The way to Terminate on failure */
-  // void* res_all_;        /* Pointer to res_all buffer */
-  // int32_t res_all_size_; /* Length of buffer */
+  int32_t err_type_;   /* The way to Terminate on failure */
   bool omit_defaults_; /* Omit config variables with default values when dumping
                           the config */
 
-  int32_t r_first_;              /* First daemon resource type */
-  int32_t r_last_;               /* Last daemon resource type */
+  int32_t r_num_;                /* number of daemon resource types */
   int32_t r_own_;                /* own resource type */
   BareosResource* own_resource_; /* Pointer to own resource */
   ResourceTable*
@@ -229,8 +226,7 @@ class ConfigurationParser {
                       STORE_RES_HANDLER* StoreRes,
                       PRINT_RES_HANDLER* print_res,
                       int32_t err_type,
-                      int32_t r_first,
-                      int32_t r_last,
+                      int32_t r_num,
                       ResourceTable* resources,
                       BareosResource** res_head,
                       const char* config_default_filename,
