@@ -812,7 +812,7 @@ json_t* json_datatype(const int type, ResourceItem items[])
 bool PrintConfigSchemaJson(PoolMem& buffer)
 {
   DatatypeName* datatype;
-  ResourceTable* resources = my_config->resources_;
+  ResourceTable* resources = my_config->resource_definitions_;
 
   json_t* json = json_object();
   json_object_set_new(json, "format-version", json_integer(2));
@@ -826,7 +826,7 @@ bool PrintConfigSchemaJson(PoolMem& buffer)
   json_object_set(resource, "bareos-dir", bareos_dir);
 
   for (int r = 0; resources[r].name; r++) {
-    ResourceTable resource = my_config->resources_[r];
+    ResourceTable resource = my_config->resource_definitions_[r];
     json_object_set(bareos_dir, resource.name, json_items(resource.items));
   }
 

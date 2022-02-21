@@ -597,7 +597,7 @@ bool ParseSdConfig(const char* configfile, int exit_code)
 #ifdef HAVE_JANSSON
 bool PrintConfigSchemaJson(PoolMem& buffer)
 {
-  ResourceTable* resources = my_config->resources_;
+  ResourceTable* resources = my_config->resource_definitions_;
 
   json_t* json = json_object();
   json_object_set_new(json, "format-version", json_integer(2));
@@ -611,7 +611,7 @@ bool PrintConfigSchemaJson(PoolMem& buffer)
   json_object_set(resource, "bareos-sd", bareos_sd);
 
   for (int r = 0; resources[r].name; r++) {
-    ResourceTable resource = my_config->resources_[r];
+    ResourceTable resource = my_config->resource_definitions_[r];
     json_object_set(bareos_sd, resource.name, json_items(resource.items));
   }
 
