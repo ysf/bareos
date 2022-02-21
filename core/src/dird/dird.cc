@@ -3,7 +3,7 @@
 
    Copyright (C) 2000-2012 Free Software Foundation Europe e.V.
    Copyright (C) 2011-2016 Planets Communications B.V.
-   Copyright (C) 2013-2021 Bareos GmbH & Co. KG
+   Copyright (C) 2013-2022 Bareos GmbH & Co. KG
 
    This program is Free Software; you can redistribute it and/or
    modify it under the terms of version three of the GNU Affero General Public
@@ -608,7 +608,7 @@ bool DoReloadConfig()
 
   DbSqlPoolFlush();
 
-  prev_config.res_table = my_config->SaveResources();
+  prev_config.res_table = my_config->CopyResourceTable();
   prev_config.JobCount = 0;
 
   Dmsg0(100, "Reloading config file\n");
@@ -624,7 +624,7 @@ bool DoReloadConfig()
     Jmsg(nullptr, M_ERROR, 0, _("Resetting to previous configuration.\n"));
 
     resource_table_reference temp_config;
-    temp_config.res_table = my_config->SaveResources();
+    temp_config.res_table = my_config->CopyResourceTable();
 
     int num_rcodes = my_config->r_last_ - my_config->r_first_ + 1;
     for (int i = 0; i < num_rcodes; i++) {
