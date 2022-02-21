@@ -96,7 +96,7 @@ ConfigurationParser::ConfigurationParser()
     , r_last_(0)
     , r_own_(0)
     , own_resource_(nullptr)
-    , resources_(0)
+    , resource_definitions_(0)
     , res_head_(nullptr)
     , SaveResourceCb_(nullptr)
     , DumpResourceCb_(nullptr)
@@ -118,7 +118,7 @@ ConfigurationParser::ConfigurationParser(
     int32_t err_type,
     int32_t r_first,
     int32_t r_last,
-    ResourceTable* resources,
+    ResourceTable* resource_definitions,
     BareosResource** res_head,
     const char* config_default_filename,
     const char* config_include_dir,
@@ -140,7 +140,7 @@ ConfigurationParser::ConfigurationParser(
   err_type_ = err_type;
   r_first_ = r_first;
   r_last_ = r_last;
-  resources_ = resources;
+  resource_definitions_ = resource_definitions;
   res_head_ = res_head;
   config_default_filename_
       = config_default_filename == nullptr ? "" : config_default_filename;
@@ -287,7 +287,7 @@ bool ConfigurationParser::AppendToResourcesChain(BareosResource* new_resource,
   if (!new_resource->resource_name_) {
     Emsg1(M_ERROR, 0,
           _("Name item is required in %s resource, but not found.\n"),
-          resources_[rindex].name);
+          resource_definitions_[rindex].name);
     return false;
   }
 
@@ -303,7 +303,7 @@ bool ConfigurationParser::AppendToResourcesChain(BareosResource* new_resource,
         Emsg2(M_ERROR, 0,
               _("Attempt to define second %s resource named \"%s\" is not "
                 "permitted.\n"),
-              resources_[rindex].name, new_resource->resource_name_);
+              resource_definitions_[rindex].name, new_resource->resource_name_);
         return false;
       }
       last = current;
@@ -332,7 +332,7 @@ ResourceTable* ConfigurationParser::GetResourceTable(int resource_type)
   ResourceTable* result = nullptr;
   int rindex = GetResourceTableIndex(resource_type);
 
-  if (rindex >= 0) { result = &resources_[rindex]; }
+  if (rindex >= 0) { result = &resource_definitions_[rindex]; }
 
   return result;
 }
@@ -343,9 +343,9 @@ ResourceTable* ConfigurationParser::GetResourceTable(
   ResourceTable* result = nullptr;
   int i;
 
-  for (i = 0; resources_[i].name; i++) {
-    if (Bstrcasecmp(resources_[i].name, resource_type_name)) {
-      result = &resources_[i];
+  for (i = 0; resource_definitions_[i].name; i++) {
+    if (Bstrcasecmp(resource_definitions_[i].name, resource_type_name)) {
+      result = &resource_definitions_[i];
     }
   }
 
@@ -550,7 +550,7 @@ bool ConfigurationParser::RemoveResource(int rcode, const char* name)
    * Note: this is intended for removing a resource that has just been added,
    * but proven to be incorrect (added by console command "configure add").
    * For a general approach, a check if this resource is referenced by other
-   * resources must be added. If it is referenced, don't remove it.
+   * resource_definitions must be added. If it is referenced, don't remove it.
    */
   last = nullptr;
   for (BareosResource* res = res_head_[rindex]; res; res = res->next_) {
