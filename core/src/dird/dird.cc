@@ -107,12 +107,12 @@ struct resource_table_reference {
 
 static void FreeSavedResources(resource_table_reference* table)
 {
-  int num = my_config->r_last_ - my_config->r_first_ + 1;
+  int num = my_config->r_num_;
 
   if (!table->res_table) { return; }
 
   for (int j = 0; j < num; j++) {
-    my_config->FreeResourceCb_(table->res_table[j], my_config->r_first_ + j);
+    my_config->FreeResourceCb_(table->res_table[j], j);
   }
   free(table->res_table);
 }
@@ -626,7 +626,7 @@ bool DoReloadConfig()
     resource_table_reference temp_config;
     temp_config.res_table = my_config->CopyResourceTable();
 
-    int num_rcodes = my_config->r_last_ - my_config->r_first_ + 1;
+    int num_rcodes = my_config->r_num_;
     for (int i = 0; i < num_rcodes; i++) {
       // restore original config
       my_config->res_head_[i] = prev_config.res_table[i];

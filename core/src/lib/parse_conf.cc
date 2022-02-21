@@ -92,8 +92,7 @@ ConfigurationParser::ConfigurationParser()
     , print_res_(nullptr)
     , err_type_(0)
     , omit_defaults_(false)
-    , r_first_(0)
-    , r_last_(0)
+    , r_num_(0)
     , r_own_(0)
     , own_resource_(nullptr)
     , resource_definitions_(0)
@@ -116,8 +115,7 @@ ConfigurationParser::ConfigurationParser(
     STORE_RES_HANDLER* StoreRes,
     PRINT_RES_HANDLER* print_res,
     int32_t err_type,
-    int32_t r_first,
-    int32_t r_last,
+    int32_t r_num,
     ResourceTable* resource_definitions,
     BareosResource** res_head,
     const char* config_default_filename,
@@ -138,8 +136,7 @@ ConfigurationParser::ConfigurationParser(
   store_res_ = StoreRes;
   print_res_ = print_res;
   err_type_ = err_type;
-  r_first_ = r_first;
-  r_last_ = r_last;
+  r_num_ = r_num;
   resource_definitions_ = resource_definitions;
   res_head_ = res_head;
   config_default_filename_
@@ -158,11 +155,9 @@ ConfigurationParser::ConfigurationParser(
 ConfigurationParser::~ConfigurationParser()
 {
   if (res_head_) {
-    for (int i = r_first_; i <= r_last_; i++) {
-      if (res_head_[i - r_first_]) {
-        FreeResourceCb_(res_head_[i - r_first_], i);
-      }
-      res_head_[i - r_first_] = nullptr;
+    for (int i = 0; i <= r_num_ - 1; i++) {
+      if (res_head_[i]) { FreeResourceCb_(res_head_[i], i); }
+      res_head_[i] = nullptr;
     }
   }
 }
@@ -282,7 +277,7 @@ bool ConfigurationParser::ParseConfigFile(const char* config_file_name,
 bool ConfigurationParser::AppendToResourcesChain(BareosResource* new_resource,
                                                  int rcode)
 {
-  int rindex = rcode - r_first_;
+  int rindex = rcode;
 
   if (!new_resource->resource_name_) {
     Emsg1(M_ERROR, 0,
@@ -320,8 +315,8 @@ int ConfigurationParser::GetResourceTableIndex(int resource_type)
 {
   int rindex = -1;
 
-  if ((resource_type >= r_first_) && (resource_type <= r_last_)) {
-    rindex = resource_type = r_first_;
+  if ((resource_type >= 0) && (resource_type <= r_num_ - 1)) {
+    rindex = resource_type;
   }
 
   return rindex;
@@ -527,7 +522,7 @@ bool ConfigurationParser::FindConfigPath(PoolMem& full_path)
 
 BareosResource** ConfigurationParser::CopyResourceTable()
 {
-  int num = r_last_ - r_first_ + 1;
+  int num = r_num_;
   BareosResource** res
       = (BareosResource**)malloc(num * sizeof(BareosResource*));
 
@@ -541,7 +536,7 @@ BareosResource** ConfigurationParser::CopyResourceTable()
 
 bool ConfigurationParser::RemoveResource(int rcode, const char* name)
 {
-  int rindex = rcode - r_first_;
+  int rindex = rcode;
   BareosResource* last;
 
   /*
@@ -581,10 +576,10 @@ void ConfigurationParser::DumpResources(bool sendit(void* sock,
                                         void* sock,
                                         bool hide_sensitive_data)
 {
-  for (int i = r_first_; i <= r_last_; i++) {
-    if (res_head_[i - r_first_]) {
-      DumpResourceCb_(i, res_head_[i - r_first_], sendit, sock,
-                      hide_sensitive_data, false);
+  for (int i = 0; i <= r_num_ - 1; i++) {
+    if (res_head_[i]) {
+      DumpResourceCb_(i, res_head_[i], sendit, sock, hide_sensitive_data,
+                      false);
     }
   }
 }

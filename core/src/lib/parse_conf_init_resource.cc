@@ -209,7 +209,7 @@ void ConfigurationParser::SetAllResourceDefaultsIterateOverItems(
 
     if (res_item_index >= MAX_RES_ITEMS) {
       Emsg1(M_ERROR_TERM, 0, _("Too many items in %s resource\n"),
-            resource_definitions_[rcode - r_first_].name);
+            resource_definitions_[rcode].name);
     }
   }
 }
