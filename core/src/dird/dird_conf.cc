@@ -66,74 +66,85 @@
 #include "lib/output_formatter_resource.h"
 
 #include <cassert>
+#include <iostream>
 
 namespace directordaemon {
 
-class DirectorConfig {
-  std::list<std::shared_ptr<BareosResource*>> director_{};
-  std::list<std::shared_ptr<BareosResource*>> client_{};
-  std::list<std::shared_ptr<BareosResource*>> jobdefs_{};
-  std::list<std::shared_ptr<BareosResource*>> job_{};
-  std::list<std::shared_ptr<BareosResource*>> storage_{};
-  std::list<std::shared_ptr<BareosResource*>> catalog_{};
-  std::list<std::shared_ptr<BareosResource*>> schedule_{};
-  std::list<std::shared_ptr<BareosResource*>> fileset_{};
-  std::list<std::shared_ptr<BareosResource*>> pool_{};
-  std::list<std::shared_ptr<BareosResource*>> msgs_{};
-  std::list<std::shared_ptr<BareosResource*>> counter_{};
-  std::list<std::shared_ptr<BareosResource*>> profile_{};
-  std::list<std::shared_ptr<BareosResource*>> console_{};
-  std::list<std::shared_ptr<BareosResource*>> device_{};
-  std::list<std::shared_ptr<BareosResource*>> user_{};
+/* class DirectorConfig { */
+/*   std::list<std::shared_ptr<DirectorResource*>> directors_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> clients_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> jobdefs_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> jobs_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> storages_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> catalogs_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> schedules_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> filesets_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> pools_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> msgss_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> counters_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> profiles_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> consoles_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> devices_{}; */
+/*   std::list<std::shared_ptr<BareosResource*>> users_{}; */
 
- public:
-  DirectorConfig(BareosResource* director,
-                 BareosResource* client,
-                 BareosResource* jobdefs,
-                 BareosResource* job,
-                 BareosResource* storage,
-                 BareosResource* catalog,
-                 BareosResource* schedule,
-                 BareosResource* fileset,
-                 BareosResource* pool,
-                 BareosResource* msgs,
-                 BareosResource* counter,
-                 BareosResource* profile,
-                 BareosResource* device,
-                 BareosResource* user);
-};
+/*  public: */
+/*   DirectorConfig(DirectorResource* director, */
+/*                  BareosResource* client, */
+/*                  BareosResource* jobdefs, */
+/*                  BareosResource* job, */
+/*                  BareosResource* storage, */
+/*                  BareosResource* catalog, */
+/*                  BareosResource* schedule, */
+/*                  BareosResource* fileset, */
+/*                  BareosResource* pool, */
+/*                  BareosResource* msgs, */
+/*                  BareosResource* counter, */
+/*                  BareosResource* profile, */
+/*                  BareosResource* device, */
+/*                  BareosResource* user); */
 
-DirectorConfig::DirectorConfig(BareosResource* director,
-                               BareosResource* client,
-                               BareosResource* jobdefs,
-                               BareosResource* job,
-                               BareosResource* storage,
-                               BareosResource* catalog,
-                               BareosResource* schedule,
-                               BareosResource* fileset,
-                               BareosResource* pool,
-                               BareosResource* msgs,
-                               BareosResource* counter,
-                               BareosResource* profile,
-                               BareosResource* device,
-                               BareosResource* user)
-{
-  director_.push_back(std::make_shared<BareosResource*>(director));
-  client_.push_back(std::make_shared<BareosResource*>(client));
-  jobdefs_.push_back(std::make_shared<BareosResource*>(jobdefs));
-  job_.push_back(std::make_shared<BareosResource*>(job));
-  storage_.push_back(std::make_shared<BareosResource*>(storage));
-  catalog_.push_back(std::make_shared<BareosResource*>(catalog));
-  schedule_.push_back(std::make_shared<BareosResource*>(schedule));
-  fileset_.push_back(std::make_shared<BareosResource*>(fileset));
-  pool_.push_back(std::make_shared<BareosResource*>(pool));
-  profile_.push_back(std::make_shared<BareosResource*>(profile));
-  msgs_.push_back(std::make_shared<BareosResource*>(msgs));
-  counter_.push_back(std::make_shared<BareosResource*>(counter));
-  profile_.push_back(std::make_shared<BareosResource*>(profile));
-  device_.push_back(std::make_shared<BareosResource*>(device));
-  user_.push_back(std::make_shared<BareosResource*>(user));
-};
+/*   void Print(); */
+/* }; */
+
+/* void DirectorConfig::Print() */
+/* { */
+/*   for (auto director : directors_) { */
+/*     std::cout << dynamic_cast<DirectorResource*>(*director)->resource_name_
+ */
+/*               << std::endl; */
+/*   } */
+/* }; */
+/* DirectorConfig::DirectorConfig(DirectorResource* director, */
+/*                                BareosResource* client, */
+/*                                BareosResource* jobdefs, */
+/*                                BareosResource* job, */
+/*                                BareosResource* storage, */
+/*                                BareosResource* catalog, */
+/*                                BareosResource* schedule, */
+/*                                BareosResource* fileset, */
+/*                                BareosResource* pool, */
+/*                                BareosResource* msgs, */
+/*                                BareosResource* counter, */
+/*                                BareosResource* profile, */
+/*                                BareosResource* device, */
+/*                                BareosResource* user) */
+/* { */
+/*   directors_.push_back(std::make_shared<DirectorResource*>(director)); */
+/*   clients_.push_back(std::make_shared<BareosResource*>(client)); */
+/*   jobdefs_.push_back(std::make_shared<BareosResource*>(jobdefs)); */
+/*   jobs_.push_back(std::make_shared<BareosResource*>(job)); */
+/*   storages_.push_back(std::make_shared<BareosResource*>(storage)); */
+/*   catalogs_.push_back(std::make_shared<BareosResource*>(catalog)); */
+/*   schedules_.push_back(std::make_shared<BareosResource*>(schedule)); */
+/*   filesets_.push_back(std::make_shared<BareosResource*>(fileset)); */
+/*   pools_.push_back(std::make_shared<BareosResource*>(pool)); */
+/*   profiles_.push_back(std::make_shared<BareosResource*>(profile)); */
+/*   msgss_.push_back(std::make_shared<BareosResource*>(msgs)); */
+/*   counters_.push_back(std::make_shared<BareosResource*>(counter)); */
+/*   profiles_.push_back(std::make_shared<BareosResource*>(profile)); */
+/*   devices_.push_back(std::make_shared<BareosResource*>(device)); */
+/*   users_.push_back(std::make_shared<BareosResource*>(user)); */
+/* }; */
 
 
 // Used by print_config_schema_json
@@ -147,20 +158,21 @@ static BareosResource* sres_head[R_NUM];
 static BareosResource** res_head = sres_head;
 static PoolMem* configure_usage_string = NULL;
 
-static DirectorConfig DirConfig(res_head[0],
-                                res_head[1],
-                                res_head[2],
-                                res_head[3],
-                                res_head[4],
-                                res_head[5],
-                                res_head[6],
-                                res_head[7],
-                                res_head[8],
-                                res_head[9],
-                                res_head[10],
-                                res_head[11],
-                                res_head[12],
-                                res_head[13]);
+/* static DirectorConfig DirConfig(dynamic_cast<DirectorResource*>(res_head[0]),
+ */
+/*                                 res_head[1], */
+/*                                 res_head[2], */
+/*                                 res_head[3], */
+/*                                 res_head[4], */
+/*                                 res_head[5], */
+/*                                 res_head[6], */
+/*                                 res_head[7], */
+/*                                 res_head[8], */
+/*                                 res_head[9], */
+/*                                 res_head[10], */
+/*                                 res_head[11], */
+/*                                 res_head[12], */
+/*                                 res_head[13]); */
 
 extern void StoreInc(LEX* lc, ResourceItem* item, int index, int pass);
 extern void StoreRun(LEX* lc, ResourceItem* item, int index, int pass);
