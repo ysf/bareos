@@ -34,36 +34,22 @@ namespace directordaemon {
 class DirectorConfig {
   std::list<std::shared_ptr<DirectorResource*>> directors_{};
   std::list<std::shared_ptr<ClientResource*>> clients_{};
-  std::list<std::shared_ptr<BareosResource*>> jobdefs_{};
-  std::list<std::shared_ptr<BareosResource*>> jobs_{};
-  std::list<std::shared_ptr<BareosResource*>> storages_{};
-  std::list<std::shared_ptr<BareosResource*>> catalogs_{};
-  std::list<std::shared_ptr<BareosResource*>> schedules_{};
-  std::list<std::shared_ptr<BareosResource*>> filesets_{};
-  std::list<std::shared_ptr<BareosResource*>> pools_{};
-  std::list<std::shared_ptr<BareosResource*>> msgss_{};
-  std::list<std::shared_ptr<BareosResource*>> counters_{};
-  std::list<std::shared_ptr<BareosResource*>> profiles_{};
-  std::list<std::shared_ptr<BareosResource*>> consoles_{};
-  std::list<std::shared_ptr<BareosResource*>> devices_{};
-  std::list<std::shared_ptr<BareosResource*>> users_{};
+  std::list<std::shared_ptr<JobResource*>> jobdefs_{};
+  std::list<std::shared_ptr<JobResource*>> jobs_{};
+  std::list<std::shared_ptr<StorageResource*>> storages_{};
+  std::list<std::shared_ptr<CatalogResource*>> catalogs_{};
+  std::list<std::shared_ptr<ScheduleResource*>> schedules_{};
+  std::list<std::shared_ptr<FilesetResource*>> filesets_{};
+  std::list<std::shared_ptr<PoolResource*>> pools_{};
+  std::list<std::shared_ptr<MessagesResource*>> msgss_{};
+  std::list<std::shared_ptr<CounterResource*>> counters_{};
+  std::list<std::shared_ptr<ProfileResource*>> profiles_{};
+  std::list<std::shared_ptr<ConsoleResource*>> consoles_{};
+  std::list<std::shared_ptr<DeviceResource*>> devices_{};
+  std::list<std::shared_ptr<UserResource*>> users_{};
 
  public:
-  DirectorConfig(DirectorResource* director,
-                 ClientResource* client,
-                 BareosResource* jobdefs,
-                 BareosResource* job,
-                 BareosResource* storage,
-                 BareosResource* catalog,
-                 BareosResource* schedule,
-                 BareosResource* fileset,
-                 BareosResource* pool,
-                 BareosResource* msgs,
-                 BareosResource* counter,
-                 BareosResource* profile,
-                 BareosResource* device,
-                 BareosResource* user);
-
+  DirectorConfig();
   void Print();
 };
 
@@ -71,42 +57,91 @@ void DirectorConfig::Print()
 {
   std::cout << "DirectorConfig::Print()" << std::endl;
   for (auto director : directors_) {
-    std::cout << (*director)->resource_name_ << std::endl;
+    std::cout << (*director)->resource_name_ << " ";
   }
+  std::cout << std::endl;
+
   for (auto client : clients_) {
-    std::cout << (*client)->resource_name_ << std::endl;
+    std::cout << (*client)->resource_name_ << " ";
   }
+  std::cout << std::endl;
+
+  for (auto client : clients_) {
+    std::cout << (*client)->resource_name_ << " ";
+  }
+  std::cout << std::endl;
 };
-DirectorConfig::DirectorConfig(DirectorResource* director,
-                               ClientResource* client,
-                               BareosResource* jobdefs,
-                               BareosResource* job,
-                               BareosResource* storage,
-                               BareosResource* catalog,
-                               BareosResource* schedule,
-                               BareosResource* fileset,
-                               BareosResource* pool,
-                               BareosResource* msgs,
-                               BareosResource* counter,
-                               BareosResource* profile,
-                               BareosResource* device,
-                               BareosResource* user)
+
+DirectorConfig::DirectorConfig()
 {
-  directors_.push_back(std::make_shared<DirectorResource*>(director));
-  clients_.push_back(std::make_shared<ClientResource*>(client));
-  jobdefs_.push_back(std::make_shared<BareosResource*>(jobdefs));
-  jobs_.push_back(std::make_shared<BareosResource*>(job));
-  storages_.push_back(std::make_shared<BareosResource*>(storage));
-  catalogs_.push_back(std::make_shared<BareosResource*>(catalog));
-  schedules_.push_back(std::make_shared<BareosResource*>(schedule));
-  filesets_.push_back(std::make_shared<BareosResource*>(fileset));
-  pools_.push_back(std::make_shared<BareosResource*>(pool));
-  profiles_.push_back(std::make_shared<BareosResource*>(profile));
-  msgss_.push_back(std::make_shared<BareosResource*>(msgs));
-  counters_.push_back(std::make_shared<BareosResource*>(counter));
-  profiles_.push_back(std::make_shared<BareosResource*>(profile));
-  devices_.push_back(std::make_shared<BareosResource*>(device));
-  users_.push_back(std::make_shared<BareosResource*>(user));
+  DirectorResource* director;
+  foreach_res (director, R_DIRECTOR) {
+    directors_.push_back(std::make_shared<DirectorResource*>(director));
+  }
+
+  ClientResource* client;
+  foreach_res (client, R_CLIENT) {
+    clients_.push_back(std::make_shared<ClientResource*>(client));
+  }
+
+  JobResource* jobdef;
+  foreach_res (jobdef, R_JOB) {
+    jobdefs_.push_back(std::make_shared<JobResource*>(jobdef));
+  }
+
+  JobResource* job;
+  foreach_res (job, R_JOB) {
+    jobs_.push_back(std::make_shared<JobResource*>(job));
+  }
+  StorageResource* storage;
+  foreach_res (storage, R_STORAGE) {
+    storages_.push_back(std::make_shared<StorageResource*>(storage));
+  }
+
+  CatalogResource* catalog;
+  foreach_res (catalog, R_CATALOG) {
+    catalogs_.push_back(std::make_shared<CatalogResource*>(catalog));
+  }
+
+  ScheduleResource* schedule;
+  foreach_res (schedule, R_SCHEDULE) {
+    schedules_.push_back(std::make_shared<ScheduleResource*>(schedule));
+  }
+
+  FilesetResource* fileset;
+  foreach_res (fileset, R_FILESET) {
+    filesets_.push_back(std::make_shared<FilesetResource*>(fileset));
+  }
+
+  PoolResource* pool;
+  foreach_res (pool, R_POOL) {
+    pools_.push_back(std::make_shared<PoolResource*>(pool));
+  }
+
+  ProfileResource* profile;
+  foreach_res (profile, R_PROFILE) {
+    profiles_.push_back(std::make_shared<ProfileResource*>(profile));
+  }
+
+  MessagesResource* msgs;
+  foreach_res (msgs, R_MSGS) {
+    msgss_.push_back(std::make_shared<MessagesResource*>(msgs));
+  }
+
+  CounterResource* counter;
+  foreach_res (counter, R_COUNTER) {
+    counters_.push_back(std::make_shared<CounterResource*>(counter));
+  }
+
+  DeviceResource* device;
+  foreach_res (device, R_DEVICE) {
+    devices_.push_back(std::make_shared<DeviceResource*>(device));
+  }
+
+  UserResource* user;
+  foreach_res (user, R_USER) {
+    users_.push_back(std::make_shared<UserResource*>(user));
+  }
 };
 
 
@@ -122,14 +157,17 @@ TEST(ConfigParser_Dir, bareos_configparser_tests)
 
   my_config->DumpResources(PrintMessage, NULL);
 
-  DirectorConfig DirConfig(
-      dynamic_cast<DirectorResource*>(my_config->res_head_[0]),
-      dynamic_cast<ClientResource*>(my_config->res_head_[1]),
-      my_config->res_head_[2], my_config->res_head_[3], my_config->res_head_[4],
-      my_config->res_head_[5], my_config->res_head_[6], my_config->res_head_[7],
-      my_config->res_head_[8], my_config->res_head_[9],
-      my_config->res_head_[10], my_config->res_head_[11],
-      my_config->res_head_[12], my_config->res_head_[13]);
+  DirectorConfig DirConfig;
+
+  /* dynamic_cast<DirectorResource*>(my_config->res_head_[0]), */
+  /* dynamic_cast<ClientResource*>(my_config->res_head_[1]), */
+  /* my_config->res_head_[2], my_config->res_head_[3], my_config->res_head_[4],
+   */
+  /* my_config->res_head_[5], my_config->res_head_[6], my_config->res_head_[7],
+   */
+  /* my_config->res_head_[8], my_config->res_head_[9], */
+  /* my_config->res_head_[10], my_config->res_head_[11], */
+  /* my_config->res_head_[12], my_config->res_head_[13]); */
 
   DirConfig.Print();
 
