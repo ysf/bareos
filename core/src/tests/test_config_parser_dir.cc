@@ -32,8 +32,8 @@
 
 namespace directordaemon {
 class DirectorConfig {
-  std::list<std::shared_ptr<DirectorResource*>> directors_{};
-  std::list<std::shared_ptr<ClientResource*>> clients_{};
+  std::map<std::string, std::shared_ptr<DirectorResource*>> directors_{};
+  std::map<std::string, std::shared_ptr<ClientResource*>> clients_{};
   std::list<std::shared_ptr<JobResource*>> jobdefs_{};
   std::list<std::shared_ptr<JobResource*>> jobs_{};
   std::list<std::shared_ptr<StorageResource*>> storages_{};
@@ -57,18 +57,14 @@ void DirectorConfig::Print()
 {
   std::cout << "DirectorConfig::Print()" << std::endl;
   for (auto director : directors_) {
-    std::cout << (*director)->resource_name_ << " ";
+    std::cout << director.first << ":" << (*director.second)->resource_name_
+              << " ";
   }
   std::cout << std::endl;
-
   for (auto client : clients_) {
-    std::cout << (*client)->resource_name_ << " ";
+    std::cout << client.first << ":" << (*client.second)->resource_name_ << " ";
   }
-  std::cout << std::endl;
 
-  for (auto client : clients_) {
-    std::cout << (*client)->resource_name_ << " ";
-  }
   std::cout << std::endl;
 };
 
@@ -76,71 +72,14 @@ DirectorConfig::DirectorConfig()
 {
   DirectorResource* director;
   foreach_res (director, R_DIRECTOR) {
-    directors_.push_back(std::make_shared<DirectorResource*>(director));
+    directors_[director->resource_name_]
+        = std::make_shared<DirectorResource*>(director);
   }
 
   ClientResource* client;
   foreach_res (client, R_CLIENT) {
-    clients_.push_back(std::make_shared<ClientResource*>(client));
-  }
-
-  JobResource* jobdef;
-  foreach_res (jobdef, R_JOB) {
-    jobdefs_.push_back(std::make_shared<JobResource*>(jobdef));
-  }
-
-  JobResource* job;
-  foreach_res (job, R_JOB) {
-    jobs_.push_back(std::make_shared<JobResource*>(job));
-  }
-  StorageResource* storage;
-  foreach_res (storage, R_STORAGE) {
-    storages_.push_back(std::make_shared<StorageResource*>(storage));
-  }
-
-  CatalogResource* catalog;
-  foreach_res (catalog, R_CATALOG) {
-    catalogs_.push_back(std::make_shared<CatalogResource*>(catalog));
-  }
-
-  ScheduleResource* schedule;
-  foreach_res (schedule, R_SCHEDULE) {
-    schedules_.push_back(std::make_shared<ScheduleResource*>(schedule));
-  }
-
-  FilesetResource* fileset;
-  foreach_res (fileset, R_FILESET) {
-    filesets_.push_back(std::make_shared<FilesetResource*>(fileset));
-  }
-
-  PoolResource* pool;
-  foreach_res (pool, R_POOL) {
-    pools_.push_back(std::make_shared<PoolResource*>(pool));
-  }
-
-  ProfileResource* profile;
-  foreach_res (profile, R_PROFILE) {
-    profiles_.push_back(std::make_shared<ProfileResource*>(profile));
-  }
-
-  MessagesResource* msgs;
-  foreach_res (msgs, R_MSGS) {
-    msgss_.push_back(std::make_shared<MessagesResource*>(msgs));
-  }
-
-  CounterResource* counter;
-  foreach_res (counter, R_COUNTER) {
-    counters_.push_back(std::make_shared<CounterResource*>(counter));
-  }
-
-  DeviceResource* device;
-  foreach_res (device, R_DEVICE) {
-    devices_.push_back(std::make_shared<DeviceResource*>(device));
-  }
-
-  UserResource* user;
-  foreach_res (user, R_USER) {
-    users_.push_back(std::make_shared<UserResource*>(user));
+    clients_[client->resource_name_]
+        = std::make_shared<ClientResource*>(client);
   }
 };
 
