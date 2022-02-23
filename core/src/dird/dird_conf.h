@@ -35,6 +35,7 @@
 #include "lib/resource_item.h"
 #include "lib/tls_conf.h"
 
+#include <iostream>
 template <typename T> class dlist;
 struct json_t;
 class RunScript;
@@ -107,8 +108,15 @@ class DirectorResource
     : public BareosResource
     , public TlsResource {
  public:
-  DirectorResource() = default;
-  virtual ~DirectorResource() = default;
+  DirectorResource()
+  {
+    std::cout << "creating DirectorResource " << resource_name_ << std::endl;
+  };
+  ;
+  virtual ~DirectorResource()
+  {
+    std::cout << "destroying DirectorResource " << resource_name_ << std::endl;
+  };
   dlist<IPADDR>* DIRaddrs = nullptr;
   dlist<IPADDR>* DIRsrc_addr = nullptr; /* Address to source connections from */
   char* query_file = nullptr;           /* SQL query file */
@@ -282,7 +290,10 @@ class ClientResource
     , public TlsResource {
  public:
   ClientResource() = default;
-  virtual ~ClientResource() = default;
+  virtual ~ClientResource()
+  {
+    std::cout << "destroying clientresource" << std::endl;
+  };
 
   uint32_t Protocol = 0;       /* Protocol to use to connect */
   uint32_t AuthType = 0;       /* Authentication Type to use for protocol */

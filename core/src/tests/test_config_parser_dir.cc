@@ -31,22 +31,10 @@
 #include "dird/dird_conf.h"
 
 namespace directordaemon {
+
 class DirectorConfig {
   std::map<std::string, std::shared_ptr<DirectorResource*>> directors_{};
   std::map<std::string, std::shared_ptr<ClientResource*>> clients_{};
-  std::list<std::shared_ptr<JobResource*>> jobdefs_{};
-  std::list<std::shared_ptr<JobResource*>> jobs_{};
-  std::list<std::shared_ptr<StorageResource*>> storages_{};
-  std::list<std::shared_ptr<CatalogResource*>> catalogs_{};
-  std::list<std::shared_ptr<ScheduleResource*>> schedules_{};
-  std::list<std::shared_ptr<FilesetResource*>> filesets_{};
-  std::list<std::shared_ptr<PoolResource*>> pools_{};
-  std::list<std::shared_ptr<MessagesResource*>> msgss_{};
-  std::list<std::shared_ptr<CounterResource*>> counters_{};
-  std::list<std::shared_ptr<ProfileResource*>> profiles_{};
-  std::list<std::shared_ptr<ConsoleResource*>> consoles_{};
-  std::list<std::shared_ptr<DeviceResource*>> devices_{};
-  std::list<std::shared_ptr<UserResource*>> users_{};
 
  public:
   DirectorConfig();
@@ -64,7 +52,6 @@ void DirectorConfig::Print()
   for (auto client : clients_) {
     std::cout << client.first << ":" << (*client.second)->resource_name_ << " ";
   }
-
   std::cout << std::endl;
 };
 
@@ -93,20 +80,9 @@ TEST(ConfigParser_Dir, bareos_configparser_tests)
       RELATIVE_PROJECT_SOURCE_DIR "/configs/bareos-configparser-tests");
   my_config = InitDirConfig(path_to_config_file.c_str(), M_ERROR_TERM);
   my_config->ParseConfig();
-
-  my_config->DumpResources(PrintMessage, NULL);
-
   DirectorConfig DirConfig;
 
-  /* dynamic_cast<DirectorResource*>(my_config->res_head_[0]), */
-  /* dynamic_cast<ClientResource*>(my_config->res_head_[1]), */
-  /* my_config->res_head_[2], my_config->res_head_[3], my_config->res_head_[4],
-   */
-  /* my_config->res_head_[5], my_config->res_head_[6], my_config->res_head_[7],
-   */
-  /* my_config->res_head_[8], my_config->res_head_[9], */
-  /* my_config->res_head_[10], my_config->res_head_[11], */
-  /* my_config->res_head_[12], my_config->res_head_[13]); */
+  // my_config->DumpResources(PrintMessage, NULL);
 
   DirConfig.Print();
 
