@@ -1575,7 +1575,6 @@ void DirdFreeJcr(JobControlRecord* jcr)
   // Delete lists setup to hold storage pointers
   FreeRwstorage(jcr);
 
-  jcr->job_end_callbacks.destroy();
 
   if (jcr->JobId != 0) {
     WriteStateFile(me->working_directory, "bareos-dir",

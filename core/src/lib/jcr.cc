@@ -156,35 +156,6 @@ struct job_callback_item {
   void* ctx{};
 };
 
-// Push a job_callback_item onto the job end callback stack.
-void RegisterJobEndCallback(JobControlRecord* jcr,
-                            void JobEndCb(JobControlRecord* jcr, void*),
-                            void* ctx)
-{
-  job_callback_item* item;
-
-  item = (job_callback_item*)malloc(sizeof(job_callback_item));
-
-  item->JobEndCb = JobEndCb;
-  item->ctx = ctx;
-
-  jcr->job_end_callbacks.push(item);
-}
-
-// Pop each job_callback_item and process it.
-static void CallJobEndCallbacks(JobControlRecord* jcr)
-{
-  job_callback_item* item;
-
-  if (jcr->job_end_callbacks.size() > 0) {
-    item = (job_callback_item*)jcr->job_end_callbacks.pop();
-    while (item) {
-      item->JobEndCb(jcr, item->ctx);
-      free(item);
-      item = (job_callback_item*)jcr->job_end_callbacks.pop();
-    }
-  }
-}
 
 JobControlRecord::JobControlRecord()
 {
@@ -202,7 +173,6 @@ JobControlRecord::JobControlRecord()
   }
 
   my_thread_id = pthread_self();
-  job_end_callbacks.init(1, false);
   sched_time = time(nullptr);
   initial_sched_time = sched_time;
   InitMutex();
@@ -354,7 +324,6 @@ static void FreeCommonJcr(JobControlRecord* jcr,
 static void JcrCleanup(JobControlRecord* jcr, bool is_destructor_call = false)
 {
   DequeueMessages(jcr);
-  CallJobEndCallbacks(jcr);
 
   Dmsg1(debuglevel, "End job=%d\n", jcr->JobId);
 
