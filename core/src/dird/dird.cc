@@ -94,10 +94,7 @@ static bool background = true;
 static bool test_config = false;
 
 
-// using ConfigResourceTable = BareosResource**;
-using ResourceTableList = std::list<BareosResource**>;
-
-static ResourceTableList reload_table;
+static std::list<BareosResource**> reload_table;
 
 static char* pidfile_path = nullptr;
 
@@ -596,16 +593,25 @@ bool DoReloadConfig()
       if (jcr->getJobType() != JT_SYSTEM) { num_running_jobs++; }
     }
     endeach_jcr(jcr);
-
-
-    if (!num_running_jobs) {
+    if (num_running_jobs == 0) {
+      for (auto table : reload_table) {
+        if (table) {
+          FreeSavedResources(table);
+          Dmsg1(10, "Removed %p from reload table.\n", table);
+        }
+      }
+      reload_table.clear();
       FreeSavedResources(prev_config);
-      for (auto table : reload_table) { FreeSavedResources(table); }
     } else {
-      // AppendPreviousConfigResourceTableToList
+      reload_table.push_back(prev_config);
+      Dmsg1(10, "Appended %p to reload table, has now %d entries\n",
+            prev_config, reload_table.size());
     }
     StartStatisticsThread();
 
+    Dmsg0(10, "reload table is:\n");
+    for (auto table : reload_table) { Dmsg1(10, "%p\n", table); }
+    Dmsg0(10, "\n");
 
   } else {
     // parse config failed, restore the old Configuration resources.
