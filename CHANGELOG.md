@@ -38,6 +38,7 @@ and since Bareos version 20 this project adheres to [Semantic Versioning](https:
 - gitignore: cleanup .gitignore files [PR #1067]
 - webui: update jstree from v3.3.8 to v3.3.12 [PR #1088]
 - webui: update jstree-grid plugin [PR #1089]
+- console: multicolumn output: fill columns first [PR #1072]
 
 ### Deprecated
 
@@ -57,6 +58,7 @@ and since Bareos version 20 this project adheres to [Semantic Versioning](https:
 
 
 [PR #1010]: https://github.com/bareos/bareos/pull/1010
+[PR #1013]: https://github.com/bareos/bareos/pull/1013
 [PR #1015]: https://github.com/bareos/bareos/pull/1015
 [PR #1016]: https://github.com/bareos/bareos/pull/1016
 [PR #1021]: https://github.com/bareos/bareos/pull/1021
@@ -64,6 +66,7 @@ and since Bareos version 20 this project adheres to [Semantic Versioning](https:
 [PR #1033]: https://github.com/bareos/bareos/pull/1033
 [PR #1035]: https://github.com/bareos/bareos/pull/1035
 [PR #1038]: https://github.com/bareos/bareos/pull/1038
+[PR #1040]: https://github.com/bareos/bareos/pull/1040
 [PR #1041]: https://github.com/bareos/bareos/pull/1041
 [PR #1043]: https://github.com/bareos/bareos/pull/1043
 [PR #1046]: https://github.com/bareos/bareos/pull/1046
@@ -75,5 +78,6 @@ and since Bareos version 20 this project adheres to [Semantic Versioning](https:
 [PR #1057]: https://github.com/bareos/bareos/pull/1057
 [PR #1059]: https://github.com/bareos/bareos/pull/1059
 [PR #1062]: https://github.com/bareos/bareos/pull/1062
+[PR #1072]: https://github.com/bareos/bareos/pull/1072
 [PR #1079]: https://github.com/bareos/bareos/pull/1079
 [unreleased]: https://github.com/bareos/bareos/tree/master
