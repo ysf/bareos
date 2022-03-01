@@ -59,7 +59,7 @@ bool SelectClientDbr(UaContext* ua, ClientDbRecord* cr);
 void StartPrompt(UaContext* ua, const char* msg);
 void AddPrompt(UaContext* ua, const char* prompt);
 void AddPrompt(UaContext* ua, std::string&& prompt);
-std::string FormatMulticolumnPrompts(const UaContext* ua,
+std::string FormatPrompts(const UaContext* ua,
                                      int window_width,
                                      int min_lines_threshold);
 int DoPrompt(UaContext* ua,

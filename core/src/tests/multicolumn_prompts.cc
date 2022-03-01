@@ -58,8 +58,7 @@ TEST_F(MulticolumPrompts, ReturnsNothingOnAnEmptyList)
   const char* list[] = {nullptr};
   PopulateUaWithPrompts(ua, list);
 
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -73,8 +72,7 @@ TEST_F(MulticolumPrompts, ReturnsSingleElementWhenOnlyOnePromptIsAvailable)
   const char* list[] = {_("bareos1"), nullptr};
   PopulateUaWithPrompts(ua, list);
 
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -92,8 +90,7 @@ TEST_F(MulticolumPrompts, Formatting10Elements_StandardWidthNoThreshold)
   PopulateUaWithPrompts(ua, list);
 
   lines_threshold = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -116,8 +113,7 @@ TEST_F(MulticolumPrompts, Formatting15Elements_StandardWidthNoThreshold)
   PopulateUaWithPrompts(ua, list);
 
   lines_threshold = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
   /* clang-format off */
   EXPECT_STREQ(
       output.c_str(),
@@ -138,8 +134,7 @@ TEST_F(MulticolumPrompts, Formatting16Elements_StandardWidthNoThreshold)
   PopulateUaWithPrompts(ua, list);
 
   lines_threshold = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -162,8 +157,7 @@ TEST_F(MulticolumPrompts, Formatting21Elements_StandardWidthNoThreshold)
   PopulateUaWithPrompts(ua, list);
 
   lines_threshold = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -182,8 +176,7 @@ TEST_F(MulticolumPrompts,
 
   PopulateUaWithPrompts(ua, list);
 
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -215,8 +208,7 @@ TEST_F(MulticolumPrompts, FormatsForVeryLargeWidth)
 
   window_width = 5000;
   lines_threshold = 10;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(
@@ -250,8 +242,7 @@ TEST_F(MulticolumPrompts, Format15Elements_SmallWidth10LineThreshold)
 
   window_width = 60;
   lines_threshold = 10;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(output.c_str(),
@@ -272,8 +263,7 @@ TEST_F(MulticolumPrompts, Formatting_NoWidth)
   PopulateUaWithPrompts(ua, list);
 
   window_width = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(output.c_str(),
@@ -299,8 +289,7 @@ TEST_F(MulticolumPrompts,
   PopulateUaWithPrompts(ua, list);
 
   lines_threshold = 0;
-  std::string output
-      = FormatMulticolumnPrompts(ua, window_width, lines_threshold);
+  std::string output = FormatPrompts(ua, window_width, lines_threshold);
 
   /* clang-format off */
   EXPECT_STREQ(output.c_str(),
@@ -317,7 +306,7 @@ TEST_F(MulticolumPrompts,
 
   PopulateUaWithPrompts(ua, list);
 
-  std::string output = FormatMulticolumnPrompts(ua, 80, 20);
+  std::string output = FormatPrompts(ua, 80, 20);
 
   /* clang-format off */
   EXPECT_STREQ(output.c_str(),
