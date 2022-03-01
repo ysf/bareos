@@ -35,7 +35,7 @@ void UnlockJcrChain();
 JobControlRecord* jcr_walk_start();
 JobControlRecord* jcr_walk_next(JobControlRecord* prev_jcr);
 void JcrWalkEnd(JobControlRecord* jcr);
-int JobCount();
+int JobCount(JobTypes exclude_jobtype = JT_NOJOB);
 void InitJcrChain();
 void CleanupJcrChain();
 

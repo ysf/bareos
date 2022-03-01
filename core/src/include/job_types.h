@@ -38,7 +38,8 @@ enum JobTypes : char
   JT_COPY = 'c',         /**< Copy Job */
   JT_MIGRATE = 'g',      /**< Migration Job */
   JT_SCAN = 'S',         /**< Scan Job */
-  JT_CONSOLIDATE = 'O'   /**< Always Incremental Consolidate Job */
+  JT_CONSOLIDATE = 'O',  /**< Always Incremental Consolidate Job */
+  JT_NOJOB = 'N'         /** not specified */
 };
 
 #endif  // BAREOS_INCLUDE_JOB_TYPES_H_

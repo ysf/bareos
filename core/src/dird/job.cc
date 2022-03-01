@@ -110,13 +110,11 @@ void InitJobServer(int max_workers)
 
 void TermJobServer() { JobqDestroy(&job_queue); /* ignore any errors */ }
 
-/**
- * Run a job -- typically called by the scheduler, but may also
+/* Run a job -- typically called by the scheduler, but may also
  *              be called by the UA (Console program).
  *
  *  Returns: 0 on failure
- *           JobId on success
- */
+ *           JobId on success */
 JobId_t RunJob(JobControlRecord* jcr)
 {
   int status;
@@ -1433,7 +1431,7 @@ void UpdateJobEndRecord(JobControlRecord* jcr)
  *   date and time to form unique job name.
  *
  *  Note, the seconds are actually a sequence number. This
- *   permits us to start a maximum fo 59 unique jobs a second, which
+ *   permits us to start a maximum of 59 unique jobs a second, which
  *   should be sufficient.
  *
  *  Returns: unique job name in jcr->Job
@@ -1453,8 +1451,7 @@ void CreateUniqueJobName(JobControlRecord* jcr, const char* base_name)
   int len;
 
   /* Guarantee unique start time -- maximum one per second, and
-   * thus unique Job Name
-   */
+   * thus unique Job Name */
   P(mutex); /* lock creation of jobs */
   seq++;
   if (seq > 59) { /* wrap as if it is seconds */
@@ -1469,10 +1466,8 @@ void CreateUniqueJobName(JobControlRecord* jcr, const char* base_name)
   V(mutex); /* allow creation of jobs */
   jcr->start_time = now;
 
-  /*
-   * Form Unique JobName
-   * Use only characters that are permitted in Windows filenames
-   */
+  /*Form Unique JobName
+   * Use only characters that are permitted in Windows filenames */
   bstrftime(dt, sizeof(dt), jcr->start_time, "%Y-%m-%d_%H.%M.%S");
 
   len = strlen(dt) + 5; /* dt + .%02d EOS */
@@ -1591,10 +1586,8 @@ void DirdFreeJcr(JobControlRecord* jcr)
   Dmsg0(200, "End dird FreeJcr\n");
 }
 
-/**
- * The Job storage definition must be either in the Job record
- * or in the Pool record.  The Pool record overrides the Job record.
- */
+/* The Job storage definition must be either in the Job record
+ * or in the Pool record.  The Pool record overrides the Job record.  */
 void GetJobStorage(UnifiedStorageResource* store,
                    JobResource* job,
                    RunResource* run)

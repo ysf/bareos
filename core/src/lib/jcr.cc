@@ -56,7 +56,7 @@
 #include "lib/message_queue_item.h"
 #include "lib/volume_session_info.h"
 #include "lib/watchdog.h"
-
+#include "include/job_types.h"
 #include <algorithm>
 
 const int debuglevel = 3400;
@@ -841,8 +841,9 @@ void JcrWalkEnd(JobControlRecord* jcr)
   }
 }
 
-// Return number of Jobs
-int JobCount()
+// Return number of Jobs that are not of "exclude_job_type"
+// default value is JT_NONE which means no filtering
+int JobCount(JobTypes exclude_jobtype)
 {
   JobControlRecord* jcr;
   int count = 0;
@@ -850,7 +851,11 @@ int JobCount()
   LockJcrChain();
   for (jcr = (JobControlRecord*)job_control_record_chain->first();
        (jcr = (JobControlRecord*)job_control_record_chain->next(jcr));) {
-    if (jcr->JobId > 0) { count++; }
+    if (exclude_jobtype == JT_NOJOB) {  // count all job types
+      if (jcr->JobId > 0) { count++; }
+    } else {
+      if (jcr->JobId > 0 && jcr->getJobType() != exclude_jobtype) { count++; }
+    }
   }
   UnlockJcrChain();
   return count;

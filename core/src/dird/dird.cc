@@ -561,16 +561,16 @@ static bool InitSighandlerSighup()
 namespace directordaemon {
 
 // count running jobs that are not JT_SYSTEM
-int GetNumRunningJobs()
-{
-  int num_running_jobs = 0;
-  JobControlRecord* jcr;
-  foreach_jcr (jcr) {
-    if (jcr->getJobType() != JT_SYSTEM) { num_running_jobs++; }
-  }
-  endeach_jcr(jcr);
-  return num_running_jobs;
-}
+/* int GetNumRunningJobs() */
+/* { */
+/*   int num_running_jobs = 0; */
+/*   JobControlRecord* jcr; */
+/*   foreach_jcr (jcr) { */
+/*     if (jcr->getJobType() != JT_SYSTEM) { num_running_jobs++; } */
+/*   } */
+/*   endeach_jcr(jcr); */
+/*   return num_running_jobs; */
+/* } */
 
 bool DoReloadConfig()
 {
@@ -613,7 +613,7 @@ bool DoReloadConfig()
     SetWorkingDirectory(me->working_directory);
     Dmsg0(10, "Director's configuration file reread.\n");
 
-    if (GetNumRunningJobs() == 0) {
+    if (JobCount(JT_SYSTEM) == 0) {
       ClearReloadTable(reload_table);
       FreeSavedResources(prev_config);
     } else {

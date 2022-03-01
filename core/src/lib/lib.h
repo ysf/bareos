@@ -46,6 +46,7 @@
 #include "attr.h"
 #include "var.h"
 #include "guid_to_name.h"
+#include "include/job_types.h"
 #include "jcr.h"
 
 #endif  // BAREOS_LIB_LIB_H_
