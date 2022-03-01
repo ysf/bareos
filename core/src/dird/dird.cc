@@ -445,8 +445,20 @@ int main(int argc, char* argv[])
   return 0;
 }
 
+// free and clear all entries in the reload list
+static void ClearReloadTable(std::list<BareosResource**>& reload_table)
+{
+  for (auto table : reload_table) {
+    if (table) {
+      FreeSavedResources(table);
+      Dmsg1(10, "Removed %p from reload table.\n", table);
+    }
+  }
+  reload_table.clear();
+}
+
 /**
- * Cleanup and then exit
+ * Cleanup and exit
  *
  */
 namespace directordaemon {
@@ -481,6 +493,8 @@ static
   Scheduler::GetMainScheduler().Terminate();
   TermJobServer();
 
+  ClearReloadTable(reload_table);
+
   if (runjob) { free(runjob); }
   if (configfile != nullptr) { free(configfile); }
   if (my_config) {
@@ -493,6 +507,8 @@ static
 
   exit(sig);
 }
+
+
 } /* namespace directordaemon */
 
 /**
@@ -543,6 +559,19 @@ static bool InitSighandlerSighup()
 }
 
 namespace directordaemon {
+
+// count running jobs that are not JT_SYSTEM
+int GetNumRunningJobs()
+{
+  int num_running_jobs = 0;
+  JobControlRecord* jcr;
+  foreach_jcr (jcr) {
+    if (jcr->getJobType() != JT_SYSTEM) { num_running_jobs++; }
+  }
+  endeach_jcr(jcr);
+  return num_running_jobs;
+}
+
 bool DoReloadConfig()
 {
   static bool is_reloading = false;
@@ -577,9 +606,6 @@ bool DoReloadConfig()
   // parse config successful
   if (ok && CheckResources() && CheckCatalog(UPDATE_CATALOG)
       && InitializeSqlPooling()) {
-    JobControlRecord* jcr;
-    int num_running_jobs = 0;
-
     Scheduler::GetMainScheduler().ClearQueue();
 
     reloaded = true;
@@ -587,20 +613,8 @@ bool DoReloadConfig()
     SetWorkingDirectory(me->working_directory);
     Dmsg0(10, "Director's configuration file reread.\n");
 
-
-    // count running jobs
-    foreach_jcr (jcr) {
-      if (jcr->getJobType() != JT_SYSTEM) { num_running_jobs++; }
-    }
-    endeach_jcr(jcr);
-    if (num_running_jobs == 0) {
-      for (auto table : reload_table) {
-        if (table) {
-          FreeSavedResources(table);
-          Dmsg1(10, "Removed %p from reload table.\n", table);
-        }
-      }
-      reload_table.clear();
+    if (GetNumRunningJobs() == 0) {
+      ClearReloadTable(reload_table);
       FreeSavedResources(prev_config);
     } else {
       reload_table.push_back(prev_config);
@@ -612,7 +626,6 @@ bool DoReloadConfig()
     Dmsg0(10, "reload table is:\n");
     for (auto table : reload_table) { Dmsg1(10, "%p\n", table); }
     Dmsg0(10, "\n");
-
   } else {
     // parse config failed, restore the old Configuration resources.
     Jmsg(nullptr, M_ERROR, 0, _("Please correct the configuration in %s\n"),
