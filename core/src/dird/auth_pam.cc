@@ -165,6 +165,31 @@ static int PamLocalCallback(int num_msg,
   return PAM_SUCCESS;
 }
 
+int PamAuthenticateUserIsValid(pam_handle* pamh, const char* username)
+{
+  int err = pam_set_item(pamh, PAM_RUSER, username);
+  if (err != PAM_SUCCESS) {
+    Dmsg1(debuglevel, "PAM set_item failed: %s\n", pam_strerror(pamh, err));
+    return err;
+  }
+
+  err = pam_authenticate(pamh, 0);
+  if (err != PAM_SUCCESS) {
+    Dmsg1(debuglevel, "PAM authentication failed: %s\n",
+          pam_strerror(pamh, err));
+    return err;
+  }
+
+  err = pam_acct_mgmt(pamh, 0);
+  if (err != PAM_SUCCESS) {
+    Dmsg1(debuglevel, "PAM authorization failed: %s\n",
+          pam_strerror(pamh, err));
+    return err;
+  }
+
+  return PAM_SUCCESS;
+}
+
 bool PamAuthenticateUser(BareosSocket* UA_sock,
                          const std::string& username_in,
                          const std::string& password_in,
@@ -184,38 +209,30 @@ bool PamAuthenticateUser(BareosSocket* UA_sock,
   const char* username = username_in.empty() ? nullptr : username_in.c_str();
   int err = pam_start(service_name.c_str(), username,
                       pam_conversation_container.get(), &pamh);
+
   if (err != PAM_SUCCESS) {
     Dmsg1(debuglevel, "PAM start failed: %s\n", pam_strerror(pamh, err));
     return false;
   }
 
-  err = pam_set_item(pamh, PAM_RUSER, username);
-  if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM set_item failed: %s\n", pam_strerror(pamh, err));
-    return false;
-  }
-
-  err = pam_authenticate(pamh, 0);
-  if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM authentication failed: %s\n",
-          pam_strerror(pamh, err));
-    return false;
-  }
+  err = PamAuthenticateUserIsValid(pamh, username);
+  if (err == PAM_SUCCESS) {
 
 #if defined(__sun)
   void* data;
 #else
   const void* data;
 #endif
-  err = pam_get_item(pamh, PAM_USER, &data);
-  if (err != PAM_SUCCESS) {
-    Dmsg1(debuglevel, "PAM get_item failed: %s\n", pam_strerror(pamh, err));
-    return false;
-  } else {
-    if (data) {
-      const char* temp_str = static_cast<const char*>(data);
-      authenticated_username = temp_str;
-    }
+
+      err = pam_get_item(pamh, PAM_USER, &data);
+      if (err == PAM_SUCCESS) {
+          if (data) {
+              const char* temp_str = static_cast<const char*>(data);
+              authenticated_username = temp_str;
+          }
+      } else {
+        Dmsg1(debuglevel, "PAM get_item failed: %s\n", pam_strerror(pamh, err));
+      }
   }
 
   if (pam_end(pamh, err) != PAM_SUCCESS) {
@@ -223,10 +240,11 @@ bool PamAuthenticateUser(BareosSocket* UA_sock,
     return false;
   }
 
-  if (err == PAM_SUCCESS) {
-    bool ok = true;
-    if (interactive) { ok = PamConvSendMessage(UA_sock, "", PAM_SUCCESS); }
-    return ok;
+  bool ok = err == PAM_SUCCESS;
+
+  if (ok && interactive)
+     ok = PamConvSendMessage(UA_sock, "", PAM_SUCCESS);
   }
-  return false;
+
+  return ok;
 }
